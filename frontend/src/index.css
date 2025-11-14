@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* optional: set Inter sebagai default jika sudah dimuat di index.html */
+body {
+  font-family: 'Inter', sans-serif;
+}
