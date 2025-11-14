@@ -10,6 +10,7 @@ import PatientPage from './pages/PatientPage';
 import PrescriptionPage from './pages/PrescriptionPage';
 import PaymentPage from './pages/PaymentPage';
 import BillingPage from './pages/BillingPage';
+import ReportingPage from './pages/ReportingPage';
 
 // Komponen Placeholder untuk halaman lain
 const PlaceholderPage = ({ title }) => (
@@ -73,6 +74,9 @@ const App = () => {
                         </Route>
                         <Route path="/tagihan">
                             <BillingPage />
+                        </Route>
+                        <Route path="/laporan"> 
+                            <ReportingPage /> 
                         </Route>
                         {/* Opsional: Redirect atau Halaman 404 */}
                         <Route path="*">

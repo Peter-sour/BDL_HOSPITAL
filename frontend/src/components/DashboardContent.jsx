@@ -1,6 +1,6 @@
 // src/components/DashboardContent.jsx
 import React from 'react';
-import { Users, Stethoscope, Pill, CreditCard } from 'lucide-react';
+import { Users, Stethoscope, Pill, CreditCard, Star, MessageSquare } from 'lucide-react';
 
 // Komponen Pembantu untuk Kartu Statistik
 const StatCard = ({ title, value, icon: Icon, iconBg, iconColor }) => (
@@ -17,6 +17,25 @@ const StatCard = ({ title, value, icon: Icon, iconBg, iconColor }) => (
     </div>
   </div>
 );
+
+// Komponen Pembantu untuk menampilkan Bintang
+const StarRating = ({ rating }) => (
+  <div className="flex">
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+      />
+    ))}
+  </div>
+);
+
+// Data dummy untuk Review Pasien Terbaru
+const recentReviews = [
+    { id: 1, name: 'Siti A.', rating: 5, comment: 'Pelayanan sangat cepat dan perawatnya ramah.', time: '1 jam lalu' },
+    { id: 2, name: 'Budi H.', rating: 4, comment: 'Dokter sangat informatif. Hanya perlu perbaikan antrian.', time: '3 jam lalu' },
+    { id: 3, name: 'Tia M.', rating: 5, comment: 'Fasilitas kamar bersih dan nyaman. Terima kasih!', time: 'Kemarin' },
+];
 
 const DashboardContent = () => {
   return (
@@ -63,11 +82,38 @@ const DashboardContent = () => {
         />
       </div>
 
-      {/* Grafik / Chart Placeholder */}
+      {/* Review Pasien Terbaru (Menggantikan Aktivitas) */}
       <div className="bg-white rounded-2xl shadow p-6">
-        <h4 className="text-lg font-semibold text-gray-700 mb-3">Grafik Kunjungan Pasien</h4>
-        <div className="w-full h-64 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
-          <p>Placeholder untuk area Grafik (Anda dapat mengintegrasikan Recharts, Chart.js, dll. di sini)</p>
+        <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <MessageSquare className="w-5 h-5 mr-2 text-gray-500" />
+            Review Pasien Terbaru
+        </h4>
+        
+        <div className="space-y-4">
+            {recentReviews.map((review) => (
+                <div key={review.id} className="border-b pb-3 last:border-b-0 last:pb-0">
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center">
+                            <p className="font-medium text-gray-800 mr-3">{review.name}</p>
+                            <StarRating rating={review.rating} />
+                        </div>
+                        <p className="flex-shrink-0 text-xs text-gray-400">{review.time}</p>
+                    </div>
+                    <blockquote className="text-sm italic text-gray-600 border-l-2 border-yellow-400 pl-3">
+                        "{review.comment}"
+                    </blockquote>
+                </div>
+            ))}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+            <p className="text-sm text-gray-500">
+                Rata-rata rating saat ini: 
+                <span className="font-bold text-gray-700 ml-1">4.6/5.0</span>
+            </p>
+            <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                Lihat Semua Ulasan →
+            </button>
         </div>
       </div>
     </main>

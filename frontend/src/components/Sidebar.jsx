@@ -1,6 +1,6 @@
 // src/components/Sidebar.jsx
 import { Link, useLocation } from 'react-router-dom'; // Import Link dan useLocation
-import { Activity, LayoutDashboard, User, Stethoscope, Pill, FileText, CreditCard,DollarSign } from 'lucide-react';
+import { Activity, LayoutDashboard, User, Stethoscope, Pill, FileText, CreditCard,DollarSign,BarChart3 } from 'lucide-react';
 
 const NavItem = ({ to, icon: Icon, label }) => {
   const location = useLocation(); // Hook untuk mengetahui path saat ini
@@ -42,6 +42,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
         <NavItem to="/resep" icon={FileText} label="Resep" />
         <NavItem to="/pembayaran" icon={CreditCard} label="Pembayaran" />
         <NavItem to="/tagihan" icon={DollarSign} label="Hitung Tagihan" />
+        <NavItem to="/laporan" icon={BarChart3} label="Laporan" />
       </nav>
     </aside>
   );
