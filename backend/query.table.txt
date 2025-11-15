@@ -1,0 +1,123 @@
+CREATE TABLE PASIEN (
+    id_pasien VARCHAR2(20) PRIMARY KEY,
+    nama VARCHAR2(100) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    alamat VARCHAR2(200) NOT NULL,
+    CONSTRAINT chk_pasien_nama CHECK (LENGTH(nama) >= 3)
+);
+
+-- =============================================
+-- TABLE: DOKTER
+-- =============================================
+
+CREATE TABLE DOKTER (
+    id_dokter VARCHAR2(20) PRIMARY KEY,
+    nama VARCHAR2(100) NOT NULL,
+    spesialis VARCHAR2(50) NOT NULL,
+    departemen VARCHAR2(50) NOT NULL,
+    CONSTRAINT chk_dokter_nama CHECK (LENGTH(nama) >= 3)
+);
+
+-- =============================================
+-- TABLE: OBAT
+-- =============================================
+
+CREATE TABLE OBAT (
+    id_obat VARCHAR2(20) PRIMARY KEY,
+    nama_obat VARCHAR2(100) NOT NULL,
+    jenis_obat VARCHAR2(50) NOT NULL,
+    dosis VARCHAR2(50) NOT NULL,
+    stok INTEGER DEFAULT 0,
+    harga NUMBER(10,2) NOT NULL,
+    CONSTRAINT chk_stok_positive CHECK (stok >= 0),
+    CONSTRAINT chk_harga_positive CHECK (harga >= 0)
+);
+
+-- =============================================
+-- TABLE: KAMAR
+-- =============================================
+
+CREATE TABLE KAMAR (
+    id_kamar VARCHAR2(20) PRIMARY KEY,
+    nama_kamar VARCHAR2(50) NOT NULL,
+    no_kamar VARCHAR2(10) NOT NULL,
+    kelas_kamar VARCHAR2(20) NOT NULL,
+    CONSTRAINT chk_kelas_kamar CHECK (kelas_kamar IN ('VIP', 'Kelas 1', 'Kelas 2', 'Kelas 3'))
+);
+
+-- =============================================
+-- TABLE: REKAM_MEDIS
+-- =============================================
+
+CREATE TABLE REKAM_MEDIS (
+    id_rekam VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_dokter VARCHAR2(20) NOT NULL,
+    diagnosa VARCHAR2(500) NOT NULL,
+    catatan VARCHAR2(1000),
+    CONSTRAINT fk_rekam_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_rekam_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE
+);
+
+-- =============================================
+-- TABLE: RAWAT_INAP
+-- =============================================
+
+CREATE TABLE RAWAT_INAP (
+    id_rawat VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_kamar VARCHAR2(20) NOT NULL,
+    tanggal_masuk DATE NOT NULL,
+    tanggal_keluar DATE,
+    CONSTRAINT fk_rawat_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_rawat_kamar FOREIGN KEY (id_kamar) REFERENCES KAMAR(id_kamar) ON DELETE CASCADE,
+    CONSTRAINT chk_tanggal_valid CHECK (tanggal_keluar IS NULL OR tanggal_keluar >= tanggal_masuk)
+);
+
+-- =============================================
+-- TABLE: RESEP
+-- =============================================
+
+CREATE TABLE RESEP (
+    id_resep VARCHAR2(20) PRIMARY KEY,
+    tanggal_resep DATE NOT NULL,
+    catatan VARCHAR2(500),
+    id_dokter VARCHAR2(20) NOT NULL,
+    id_pasien VARCHAR2(20) NOT NULL,
+    CONSTRAINT fk_resep_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE,
+    CONSTRAINT fk_resep_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE
+);
+
+-- =============================================
+-- TABLE: RESEP_OBAT (Penghubung Resep & Obat)
+-- =============================================
+
+CREATE TABLE RESEP_OBAT (
+    id_resep_obat VARCHAR2(20) PRIMARY KEY,
+    id_resep VARCHAR2(20) NOT NULL,
+    id_obat VARCHAR2(20) NOT NULL,
+    jumlah INTEGER NOT NULL,
+    aturan_pakai VARCHAR2(100) NOT NULL,
+    CONSTRAINT fk_resep_obat_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+    CONSTRAINT fk_resep_obat_obat FOREIGN KEY (id_obat) REFERENCES OBAT(id_obat) ON DELETE CASCADE,
+    CONSTRAINT chk_jumlah_obat CHECK (jumlah > 0)
+);
+
+-- =============================================
+-- TABLE: TRANSAKSI_PEMBAYARAN
+-- =============================================
+
+CREATE TABLE TRANSAKSI_PEMBAYARAN (
+    id_transaksi VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_resep VARCHAR2(20) NOT NULL,
+    id_rawat VARCHAR2(20),
+    tanggal_transaksi DATE NOT NULL,
+    total_bayar NUMBER(12,2) NOT NULL,
+    metode_bayar VARCHAR2(20) NOT NULL,
+    CONSTRAINT fk_trans_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_trans_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+    CONSTRAINT fk_trans_rawat FOREIGN KEY (id_rawat) REFERENCES RAWAT_INAP(id_rawat) ON DELETE CASCADE,
+    CONSTRAINT chk_total_bayar CHECK (total_bayar >= 0),
+    CONSTRAINT chk_metode_bayar CHECK (metode_bayar IN ('Tunai', 'Transfer', 'Kartu Kredit', 'Kartu Debit', 'BPJS'))
+);

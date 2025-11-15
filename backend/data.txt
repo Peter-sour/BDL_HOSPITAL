@@ -1,0 +1,291 @@
+
+
+```sql
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P001', 'Budi Santoso', TO_DATE('1990-01-01', 'YYYY-MM-DD'), 'Jl. Merdeka No. 10');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P002', 'Susi Susanti', TO_DATE('1985-05-20', 'YYYY-MM-DD'), 'Jl. Sudirman No. 25');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P003', 'Tono Wijaya', TO_DATE('2005-11-12', 'YYYY-MM-DD'), 'Jl. Pahlawan No. 5');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P004', 'Risa Amelia', TO_DATE('1978-07-30', 'YYYY-MM-DD'), 'Jl. Asia Afrika No. 40');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P005', 'Hasan Basri', TO_DATE('1965-03-10', 'YYYY-MM-DD'), 'Jl. Ganesha No. 2');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P006', 'Andi Prasetyo', TO_DATE('1988-03-15', 'YYYY-MM-DD'), 'Jl. Gatot Subroto No. 45');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P007', 'Lina Marlina', TO_DATE('1995-09-08', 'YYYY-MM-DD'), 'Jl. Ahmad Yani No. 33');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P008', 'Joko Widodo', TO_DATE('1982-12-25', 'YYYY-MM-DD'), 'Jl. Diponegoro No. 18');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P009', 'Nina Safitri', TO_DATE('1999-06-14', 'YYYY-MM-DD'), 'Jl. Kartini No. 7');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P010', 'Rahmat Hidayat', TO_DATE('1991-02-28', 'YYYY-MM-DD'), 'Jl. Veteran No. 21');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P011', 'Sari Indah', TO_DATE('1987-04-17', 'YYYY-MM-DD'), 'Jl. Pemuda No. 9');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P012', 'Budi Kusuma', TO_DATE('1994-11-03', 'YYYY-MM-DD'), 'Jl. Imam Bonjol No. 14');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P013', 'Wati Lestari', TO_DATE('2001-08-22', 'YYYY-MM-DD'), 'Jl. Cendana No. 6');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P014', 'Agung Nugroho', TO_DATE('1989-01-10', 'YYYY-MM-DD'), 'Jl. Mawar No. 11');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P015', 'Dewi Anggraini', TO_DATE('1996-05-19', 'YYYY-MM-DD'), 'Jl. Kenanga No. 25');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P016', 'Faisal Rahman', TO_DATE('1984-07-30', 'YYYY-MM-DD'), 'Jl. Flamboyan No. 8');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P017', 'Rina Permata', TO_DATE('1998-10-12', 'YYYY-MM-DD'), 'Jl. Sakura No. 3');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P018', 'Hadi Setiawan', TO_DATE('1992-12-05', 'YYYY-MM-DD'), 'Jl. Bougenville No. 19');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P019', 'Ika Susilowati', TO_DATE('1986-03-21', 'YYYY-MM-DD'), 'Jl. Teratai No. 16');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P020', 'Yoga Pratama', TO_DATE('2000-09-15', 'YYYY-MM-DD'), 'Jl. Kamboja No. 27');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P021', 'Melati Putri', TO_DATE('1993-06-08', 'YYYY-MM-DD'), 'Jl. Anyelir No. 13');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P022', 'Doni Wijaya', TO_DATE('1990-11-24', 'YYYY-MM-DD'), 'Jl. Tulip No. 20');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P023', 'Putri Maharani', TO_DATE('1997-04-02', 'YYYY-MM-DD'), 'Jl. Lily No. 5');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P024', 'Irfan Hakim', TO_DATE('1985-08-18', 'YYYY-MM-DD'), 'Jl. Dahlia No. 31');
+INSERT INTO PASIEN (id_pasien, nama, tanggal_lahir, alamat) VALUES ('P025', 'Novi Kartika', TO_DATE('1994-02-14', 'YYYY-MM-DD'), 'Jl. Aster No. 9');
+COMMIT;
+```
+
+#### 2\. DOKTER (25 Data) 👨‍⚕️
+
+```sql
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D001', 'dr. Taufiq Hidayat', 'Kardiologi', 'Jantung');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D002', 'dr. Dewi Anggraeni', 'Neurologi', 'Saraf');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D003', 'dr. Cahyo Widodo', 'Pediatri', 'Anak');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D004', 'drg. Siti Aminah', 'Gigi', 'Gigi & Mulut');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D005', 'dr. Eko Prasetyo', 'Ortopedi', 'Tulang');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D006', 'dr. Farah Annisa', 'Onkologi', 'Kanker');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D007', 'dr. Ahmad Fauzi', 'Penyakit Dalam', 'Interna');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D008', 'dr. Linda Wijayanti', 'Obstetri & Ginekologi', 'Kandungan');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D009', 'dr. Hendra Gunawan', 'Bedah Umum', 'Bedah');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D010', 'dr. Maya Puspita', 'Kulit & Kelamin', 'Dermatologi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D011', 'dr. Rudi Hartono', 'THT', 'THT');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D012', 'dr. Fitri Nurhaliza', 'Mata', 'Oftalmologi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D013', 'dr. Bambang Suryono', 'Radiologi', 'Radiologi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D014', 'dr. Putri Andini', 'Anestesi', 'Anestesiologi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D015', 'dr. Yusuf Ramadhan', 'Urologi', 'Urologi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D016', 'dr. Ratna Sari', 'Psikiatri', 'Jiwa');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D017', 'dr. Agus Setiawan', 'Pulmonologi', 'Paru');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D018', 'dr. Dina Lestari', 'Endokrinologi', 'Metabolisme');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D019', 'dr. Hendro Wijaya', 'Gastroenterologi', 'Pencernaan');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D020', 'dr. Sari Melinda', 'Nefrologi', 'Ginjal');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D021', 'dr. Wira Kesuma', 'Gizi Klinis', 'Gizi');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D022', 'dr. Nia Ramadhani', 'Rehabilitasi Medik', 'Rehab');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D023', 'dr. Toni Siswanto', 'Bedah Plastik', 'Bedah');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D024', 'dr. Clara Devi', 'Patologi Anatomi', 'Lab');
+INSERT INTO DOKTER (id_dokter, nama, spesialis, departemen) VALUES ('D025', 'dr. Jajang Sukmana', 'Forensik', 'Forensik');
+COMMIT;
+```
+
+#### 3\. OBAT (25 Data) 💊
+
+```sql
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O001', 'Paracetamol', 'Tablet', '500mg', 300, 3000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O002', 'Amoxicillin', 'Kapsul', '500mg', 250, 7000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O003', 'Ibuprofen', 'Tablet', '400mg', 200, 5000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O004', 'Salbutamol', 'Inhaler', '100mcg', 50, 50000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O005', 'Cetirizine', 'Tablet', '10mg', 150, 4000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O006', 'Metformin', 'Tablet', '500mg', 180, 6500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O007', 'Amlodipine', 'Tablet', '10mg', 160, 8000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O008', 'Simvastatin', 'Tablet', '20mg', 140, 9500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O009', 'Losartan', 'Tablet', '50mg', 110, 7500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O010', 'Ciprofloxacin', 'Tablet', '500mg', 95, 12000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O011', 'Azithromycin', 'Kapsul', '500mg', 85, 15000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O012', 'Lansoprazole', 'Kapsul', '30mg', 130, 11000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O013', 'Domperidone', 'Tablet', '10mg', 175, 4500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O014', 'Ranitidine', 'Tablet', '150mg', 145, 5500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O015', 'Dexamethasone', 'Tablet', '0.5mg', 105, 3000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O016', 'Methylprednisolone', 'Tablet', '4mg', 125, 6000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O017', 'Captopril', 'Tablet', '25mg', 190, 4000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O018', 'Vitamin B Complex', 'Tablet', '500mg', 220, 2000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O019', 'Vitamin C', 'Tablet', '500mg', 250, 1500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O020', 'Antasida DOEN', 'Sirup', '100ml', 170, 8500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O021', 'Insulin Glargine', 'Injeksi', '100 unit/ml', 60, 150000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O022', 'Levothyroxine', 'Tablet', '100mcg', 100, 12000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O023', 'Omeprazole', 'Kapsul', '20mg', 180, 9000.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O024', 'Loperamide', 'Tablet', '2mg', 90, 2500.00);
+INSERT INTO OBAT (id_obat, nama_obat, jenis_obat, dosis, stok, harga) VALUES ('O025', 'Warfarin', 'Tablet', '5mg', 75, 20000.00);
+COMMIT;
+```
+
+#### 4\. KAMAR (20 Data) 🛌
+
+```sql
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K001', 'Ruang Mawar', '101', 'VIP');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K002', 'Ruang Melati', '102', 'Kelas 1');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K003', 'Ruang Anggrek', '201', 'Kelas 2');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K004', 'Ruang Tulip', '202', 'Kelas 3');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K005', 'Ruang Teratai', '203', 'VIP');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K006', 'Ruang Flamboyan', '301', 'Kelas 1');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K007', 'Ruang Kenanga', '302', 'Kelas 2');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K008', 'Ruang Sakura', '303', 'Kelas 3');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K009', 'Ruang Kamboja', '304', 'VIP');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K010', 'Ruang Lily', '401', 'Kelas 1');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K011', 'Ruang Tulip Deluxe', '402', 'Kelas 2');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K012', 'Ruang Aster', '403', 'Kelas 3');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K013', 'Ruang Bougenville', '501', 'VIP');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K014', 'Ruang Cempaka', '502', 'Kelas 1');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K015', 'Ruang Lavender', '503', 'Kelas 2');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K016', 'Ruang Edelweiss', '504', 'Kelas 3');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K017', 'Ruang Tulip Suite', '601', 'VIP');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K018', 'Ruang Jasmine', '602', 'Kelas 1');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K019', 'Ruang Dahlia', '603', 'Kelas 2');
+INSERT INTO KAMAR (id_kamar, nama_kamar, no_kamar, kelas_kamar) VALUES ('K020', 'Ruang Angsana', '604', 'Kelas 3');
+COMMIT;
+```
+
+-----
+
+### FASE 2: Tabel Relasi Tingkat 1 (REKAM\_MEDIS, RAWAT\_INAP, RESEP)
+
+#### 5\. REKAM\_MEDIS (25 Data) 📋
+
+```sql
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM001', 'P001', 'D001', 'Angina Pectoris', 'Rujuk ke poli jantung, perlu EKG');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM002', 'P002', 'D002', 'Sakit Kepala Migrain', 'Kurangi stres, obat pereda nyeri');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM003', 'P003', 'D003', 'Demam Berdarah (DBD)', 'Rawat inap, monitor trombosit');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM004', 'P004', 'D004', 'Periodontitis', 'Pembersihan karang gigi mendalam');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM005', 'P005', 'D005', 'Osteoartritis Lutut', 'Fisioterapi dan obat pereda nyeri');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM006', 'P006', 'D007', 'Diabetes Mellitus Tipe 2', 'Kontrol gula darah rutin, diet rendah gula');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM007', 'P007', 'D008', 'Kehamilan 12 minggu', 'Kondisi ibu dan janin sehat, kontrol rutin');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM008', 'P008', 'D009', 'Appendisitis Akut', 'Perlu operasi appendektomi segera');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM009', 'P009', 'D010', 'Dermatitis Atopik', 'Hindari alergen, gunakan pelembab');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM010', 'P010', 'D011', 'Sinusitis Kronis', 'Antibiotik dan dekongestan');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM011', 'P011', 'D012', 'Katarak Mata Kanan', 'Jadwal operasi katarak 20 November');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM012', 'P012', 'D001', 'Aritmia Jantung', 'Pasang alat pacu jantung, kontrol berkala');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM013', 'P013', 'D003', 'ISPA', 'Antibiotik dan vitamin, istirahat cukup');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM014', 'P014', 'D005', 'Fraktur Femur', 'Operasi pemasangan pen, rehabilitasi medik');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM015', 'P015', 'D007', 'Gastritis Akut', 'Diet lunak, hindari makanan pedas dan asam');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM016', 'P016', 'D017', 'Pneumonia', 'Rawat inap, antibiotik intravena');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM017', 'P017', 'D002', 'Epilepsi', 'Obat antikonvulsan rutin, hindari pemicu');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM018', 'P018', 'D019', 'Maag Kronis', 'PPI dan antasida, diet teratur');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM019', 'P019', 'D020', 'Gagal Ginjal Kronis', 'Hemodialisis 2x seminggu');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM020', 'P020', 'D004', 'Karies Gigi', 'Tambal gigi dan scaling');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM021', 'P021', 'D016', 'Depresi Ringan', 'Konseling dan antidepresan ringan');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM022', 'P022', 'D018', 'Hipertiroid', 'Obat antitiroid dan monitor hormone');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM023', 'P023', 'D010', 'Jerawat Parah', 'Isotretinoin dan perawatan wajah');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM024', 'P024', 'D015', 'Batu Ginjal', 'ESWL atau operasi jika diperlukan');
+INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan) VALUES ('RM025', 'P025', 'D006', 'Kanker Payudara Stadium 2', 'Kemoterapi dan radiasi');
+COMMIT;
+```
+
+#### 6\. RAWAT\_INAP (20 Data) 🏨
+
+```sql
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI001', 'P003', 'K002', TO_DATE('2025-11-01', 'YYYY-MM-DD'), TO_DATE('2025-11-04', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI002', 'P005', 'K001', TO_DATE('2025-10-25', 'YYYY-MM-DD'), TO_DATE('2025-10-28', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI003', 'P001', 'K003', TO_DATE('2025-11-05', 'YYYY-MM-DD'), TO_DATE('2025-11-07', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI004', 'P008', 'K006', TO_DATE('2025-11-07', 'YYYY-MM-DD'), TO_DATE('2025-11-09', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI005', 'P011', 'K005', TO_DATE('2025-11-09', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI006', 'P012', 'K009', TO_DATE('2025-11-01', 'YYYY-MM-DD'), TO_DATE('2025-11-05', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI007', 'P014', 'K010', TO_DATE('2025-11-03', 'YYYY-MM-DD'), TO_DATE('2025-11-08', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI008', 'P016', 'K007', TO_DATE('2025-11-06', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI009', 'P019', 'K011', TO_DATE('2025-11-04', 'YYYY-MM-DD'), TO_DATE('2025-11-10', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI010', 'P025', 'K013', TO_DATE('2025-11-10', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI011', 'P006', 'K008', TO_DATE('2025-10-28', 'YYYY-MM-DD'), TO_DATE('2025-11-02', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI012', 'P013', 'K012', TO_DATE('2025-11-05', 'YYYY-MM-DD'), TO_DATE('2025-11-07', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI013', 'P015', 'K014', TO_DATE('2025-11-08', 'YYYY-MM-DD'), TO_DATE('2025-11-10', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI014', 'P018', 'K004', TO_DATE('2025-11-02', 'YYYY-MM-DD'), TO_DATE('2025-11-04', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI015', 'P024', 'K015', TO_DATE('2025-11-09', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI016', 'P007', 'K018', TO_DATE('2025-11-12', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI017', 'P009', 'K017', TO_DATE('2025-11-10', 'YYYY-MM-DD'), TO_DATE('2025-11-13', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI018', 'P010', 'K006', TO_DATE('2025-11-11', 'YYYY-MM-DD'), NULL);
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI019', 'P021', 'K016', TO_DATE('2025-11-05', 'YYYY-MM-DD'), TO_DATE('2025-11-11', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP (id_rawat, id_pasien, id_kamar, tanggal_masuk, tanggal_keluar) VALUES ('RI020', 'P022', 'K003', TO_DATE('2025-11-01', 'YYYY-MM-DD'), NULL);
+COMMIT;
+```
+
+#### 7\. RESEP (25 Data) 📝
+
+```sql
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS001', TO_DATE('2025-11-05', 'YYYY-MM-DD'), 'Obat jantung dan penurun kolesterol', 'D001', 'P001');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS002', TO_DATE('2025-11-06', 'YYYY-MM-DD'), 'Obat migraine dan vitamin', 'D002', 'P002');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS003', TO_DATE('2025-11-03', 'YYYY-MM-DD'), 'Sirup penurun panas dan cairan rehidrasi', 'D003', 'P003');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS004', TO_DATE('2025-11-04', 'YYYY-MM-DD'), 'Obat kumur antiseptik', 'D004', 'P004');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS005', TO_DATE('2025-10-25', 'YYYY-MM-DD'), 'Obat antiinflamasi, pereda nyeri', 'D005', 'P005');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS006', TO_DATE('2025-11-05', 'YYYY-MM-DD'), 'Obat diabetes rutin', 'D007', 'P006');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS007', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 'Vitamin ibu hamil', 'D008', 'P007');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS008', TO_DATE('2025-11-08', 'YYYY-MM-DD'), 'Pasca operasi appendik', 'D009', 'P008');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS009', TO_DATE('2025-11-04', 'YYYY-MM-DD'), 'Salep kulit dan antihistamin', 'D010', 'P009');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS010', TO_DATE('2025-11-06', 'YYYY-MM-DD'), 'Antibiotik sinusitis', 'D011', 'P010');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS011', TO_DATE('2025-11-09', 'YYYY-MM-DD'), 'Tetes mata pasca operasi', 'D012', 'P011');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS012', TO_DATE('2025-11-03', 'YYYY-MM-DD'), 'Obat jantung', 'D001', 'P012');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS013', TO_DATE('2025-11-05', 'YYYY-MM-DD'), 'Antibiotik ISPA', 'D003', 'P013');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS014', TO_DATE('2025-11-08', 'YYYY-MM-DD'), 'Obat nyeri tulang', 'D005', 'P014');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS015', TO_DATE('2025-11-08', 'YYYY-MM-DD'), 'Obat maag', 'D007', 'P015');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS016', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 'Antibiotik pneumonia', 'D017', 'P016');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS017', TO_DATE('2025-11-02', 'YYYY-MM-DD'), 'Antikonvulsan', 'D002', 'P017');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS018', TO_DATE('2025-11-03', 'YYYY-MM-DD'), 'Obat lambung kronis', 'D019', 'P018');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS019', TO_DATE('2025-11-06', 'YYYY-MM-DD'), 'Suplemen ginjal', 'D020', 'P019');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS020', TO_DATE('2025-11-01', 'YYYY-MM-DD'), 'Obat kumur', 'D004', 'P020');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS021', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 'Antidepresan', 'D016', 'P021');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS022', TO_DATE('2025-11-09', 'YYYY-MM-DD'), 'Obat tiroid', 'D018', 'P022');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS023', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 'Krim jerawat', 'D010', 'P023');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS024', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 'Obat pelarut batu ginjal', 'D015', 'P024');
+INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien) VALUES ('RS025', TO_DATE('2025-11-11', 'YYYY-MM-DD'), 'Obat pendukung kemo', 'D006', 'P025');
+COMMIT;
+```
+
+-----
+
+### FASE 3: Tabel Relasi Tingkat Akhir (RESEP\_OBAT, TRANSAKSI\_PEMBAYARAN)
+
+#### 8\. RESEP\_OBAT (40 Data) 📜
+
+```sql
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO001', 'RS001', 'O008', 30, '1x sehari sesudah makan');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO002', 'RS001', 'O007', 30, '1x sehari pagi');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO003', 'RS002', 'O001', 10, 'Jika pusing 1x');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO004', 'RS002', 'O019', 10, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO005', 'RS003', 'O001', 15, '3x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO006', 'RS003', 'O019', 20, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO007', 'RS004', 'O002', 7, '3x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO008', 'RS005', 'O003', 15, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO009', 'RS006', 'O006', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO010', 'RS006', 'O007', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO011', 'RS007', 'O018', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO012', 'RS007', 'O019', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO013', 'RS008', 'O002', 14, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO014', 'RS008', 'O001', 15, 'Jika perlu');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO015', 'RS009', 'O005', 20, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO016', 'RS010', 'O011', 7, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO017', 'RS010', 'O013', 10, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO018', 'RS011', 'O015', 10, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO019', 'RS012', 'O007', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO020', 'RS012', 'O009', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO021', 'RS012', 'O017', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO022', 'RS013', 'O002', 10, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO023', 'RS013', 'O001', 10, 'Jika demam');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO024', 'RS014', 'O003', 20, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO025', 'RS014', 'O016', 15, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO026', 'RS015', 'O012', 14, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO027', 'RS015', 'O020', 2, '3x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO028', 'RS016', 'O010', 14, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO029', 'RS016', 'O002', 14, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO030', 'RS017', 'O015', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO031', 'RS017', 'O018', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO032', 'RS018', 'O012', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO033', 'RS018', 'O014', 30, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO034', 'RS019', 'O018', 30, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO035', 'RS019', 'O019', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO036', 'RS020', 'O001', 5, 'Jika nyeri');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO037', 'RS021', 'O018', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO038', 'RS022', 'O006', 30, '1x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO039', 'RS023', 'O005', 14, '2x sehari');
+INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai) VALUES ('RO040', 'RS024', 'O003', 20, '2x sehari');
+COMMIT;
+```
+
+#### 9\. TRANSAKSI\_PEMBAYARAN (25 Data) 💰
+
+```sql
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T001', 'P001', 'RS001', 'RI003', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 7500000.00, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T002', 'P002', 'RS002', NULL, TO_DATE('2025-11-06', 'YYYY-MM-DD'), 350000.00, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T003', 'P003', 'RS003', 'RI001', TO_DATE('2025-11-04', 'YYYY-MM-DD'), 4200000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T004', 'P004', 'RS004', NULL, TO_DATE('2025-11-04', 'YYYY-MM-DD'), 210000.00, 'Kartu Debit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T005', 'P005', 'RS005', 'RI002', TO_DATE('2025-10-28', 'YYYY-MM-DD'), 6100000.00, 'Kartu Kredit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T006', 'P006', 'RS006', 'RI011', TO_DATE('2025-11-05', 'YYYY-MM-DD'), 4500000.00, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T007', 'P007', 'RS007', 'RI016', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 250000.00, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T008', 'P008', 'RS008', 'RI004', TO_DATE('2025-11-09', 'YYYY-MM-DD'), 8750000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T009', 'P009', 'RS009', 'RI017', TO_DATE('2025-11-04', 'YYYY-MM-DD'), 425000.00, 'Kartu Debit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T010', 'P010', 'RS010', 'RI018', TO_DATE('2025-11-06', 'YYYY-MM-DD'), 380000.00, 'Kartu Kredit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T011', 'P011', 'RS011', 'RI005', TO_DATE('2025-11-09', 'YYYY-MM-DD'), 12500000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T012', 'P012', 'RS012', 'RI006', TO_DATE('2025-11-05', 'YYYY-MM-DD'), 15750000.00, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T013', 'P013', 'RS013', 'RI012', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 1850000.00, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T014', 'P014', 'RS014', 'RI007', TO_DATE('2025-11-08', 'YYYY-MM-DD'), 9250000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T015', 'P015', 'RS015', 'RI013', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 2150000.00, 'Kartu Kredit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T016', 'P016', 'RS016', 'RI008', TO_DATE('2025-11-07', 'YYYY-MM-DD'), 5800000.00, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T017', 'P017', 'RS017', NULL, TO_DATE('2025-11-02', 'YYYY-MM-DD'), 450000.00, 'Kartu Debit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T018', 'P018', 'RS018', 'RI014', TO_DATE('2025-11-04', 'YYYY-MM-DD'), 1950000.00, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T019', 'P019', 'RS019', 'RI009', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 7500000.00, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T020', 'P020', 'RS020', NULL, TO_DATE('2025-11-01', 'YYYY-MM-DD'), 550000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T021', 'P021', 'RS021', 'RI019', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 320000.00, 'Kartu Kredit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T022', 'P022', 'RS022', 'RI020', TO_DATE('2025-11-09', 'YYYY-MM-DD'), 475000.00, 'Kartu Debit');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T023', 'P023', 'RS023', NULL, TO_DATE('2025-11-07', 'YYYY-MM-DD'), 285000.00, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T024', 'P024', 'RS024', 'RI015', TO_DATE('2025-11-10', 'YYYY-MM-DD'), 11250000.00, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T025', 'P025', 'RS025', 'RI010', TO_DATE('2025-11-11', 'YYYY-MM-DD'), 18500000.00, 'BPJS');
+COMMIT;
+```

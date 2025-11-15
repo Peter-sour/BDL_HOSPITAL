@@ -1,0 +1,519 @@
+-- =============================================
+-- SISTEM MANAJEMEN RUMAH SAKIT
+-- Oracle Database Schema
+-- =============================================
+
+-- Drop tables jika sudah ada (untuk testing)
+DROP TABLE TRANSAKSI_PEMBAYARAN CASCADE CONSTRAINTS;
+DROP TABLE RESEP_OBAT CASCADE CONSTRAINTS;
+DROP TABLE REKAM_MEDIS CASCADE CONSTRAINTS;
+DROP TABLE RAWAT_INAP CASCADE CONSTRAINTS;
+DROP TABLE RESEP CASCADE CONSTRAINTS;
+DROP TABLE OBAT CASCADE CONSTRAINTS;
+DROP TABLE KAMAR CASCADE CONSTRAINTS;
+DROP TABLE PASIEN CASCADE CONSTRAINTS;
+DROP TABLE DOKTER CASCADE CONSTRAINTS;
+
+-- Drop sequences jika sudah ada
+DROP SEQUENCE seq_pasien;
+DROP SEQUENCE seq_dokter;
+DROP SEQUENCE seq_rekam;
+DROP SEQUENCE seq_rawat;
+DROP SEQUENCE seq_resep;
+DROP SEQUENCE seq_obat;
+DROP SEQUENCE seq_kamar;
+DROP SEQUENCE seq_transaksi;
+DROP SEQUENCE seq_resep_obat;
+
+-- =============================================
+-- CREATE SEQUENCES untuk auto-increment ID
+-- =============================================
+
+CREATE SEQUENCE seq_pasien START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_dokter START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_rekam START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_rawat START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_resep START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_obat START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_kamar START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_transaksi START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_resep_obat START WITH 1 INCREMENT BY 1;
+
+-- =============================================
+-- TABLE: PASIEN
+-- =============================================
+
+CREATE TABLE PASIEN (
+    id_pasien VARCHAR2(20) PRIMARY KEY,
+    nama VARCHAR2(100) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    alamat VARCHAR2(200) NOT NULL,
+    CONSTRAINT chk_pasien_nama CHECK (LENGTH(nama) >= 3)
+);
+
+-- =============================================
+-- TABLE: DOKTER
+-- =============================================
+
+CREATE TABLE DOKTER (
+    id_dokter VARCHAR2(20) PRIMARY KEY,
+    nama VARCHAR2(100) NOT NULL,
+    spesialis VARCHAR2(50) NOT NULL,
+    departemen VARCHAR2(50) NOT NULL,
+    CONSTRAINT chk_dokter_nama CHECK (LENGTH(nama) >= 3)
+);
+
+-- =============================================
+-- TABLE: OBAT
+-- =============================================
+
+CREATE TABLE OBAT (
+    id_obat VARCHAR2(20) PRIMARY KEY,
+    nama_obat VARCHAR2(100) NOT NULL,
+    jenis_obat VARCHAR2(50) NOT NULL,
+    dosis VARCHAR2(50) NOT NULL,
+    stok INTEGER DEFAULT 0,
+    harga NUMBER(10,2) NOT NULL,
+    CONSTRAINT chk_stok_positive CHECK (stok >= 0),
+    CONSTRAINT chk_harga_positive CHECK (harga >= 0)
+);
+
+-- =============================================
+-- TABLE: KAMAR
+-- =============================================
+
+CREATE TABLE KAMAR (
+    id_kamar VARCHAR2(20) PRIMARY KEY,
+    nama_kamar VARCHAR2(50) NOT NULL,
+    no_kamar VARCHAR2(10) NOT NULL,
+    kelas_kamar VARCHAR2(20) NOT NULL,
+    CONSTRAINT chk_kelas_kamar CHECK (kelas_kamar IN ('VIP', 'Kelas 1', 'Kelas 2', 'Kelas 3'))
+);
+
+-- =============================================
+-- TABLE: REKAM_MEDIS
+-- =============================================
+
+CREATE TABLE REKAM_MEDIS (
+    id_rekam VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_dokter VARCHAR2(20) NOT NULL,
+    diagnosa VARCHAR2(500) NOT NULL,
+    catatan VARCHAR2(1000),
+    CONSTRAINT fk_rekam_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_rekam_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE
+);
+
+-- =============================================
+-- TABLE: RAWAT_INAP
+-- =============================================
+
+CREATE TABLE RAWAT_INAP (
+    id_rawat VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_kamar VARCHAR2(20) NOT NULL,
+    tanggal_masuk DATE NOT NULL,
+    tanggal_keluar DATE,
+    CONSTRAINT fk_rawat_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_rawat_kamar FOREIGN KEY (id_kamar) REFERENCES KAMAR(id_kamar) ON DELETE CASCADE,
+    CONSTRAINT chk_tanggal_valid CHECK (tanggal_keluar IS NULL OR tanggal_keluar >= tanggal_masuk)
+);
+
+-- =============================================
+-- TABLE: RESEP
+-- =============================================
+
+CREATE TABLE RESEP (
+    id_resep VARCHAR2(20) PRIMARY KEY,
+    tanggal_resep DATE NOT NULL,
+    catatan VARCHAR2(500),
+    id_dokter VARCHAR2(20) NOT NULL,
+    id_pasien VARCHAR2(20) NOT NULL,
+    CONSTRAINT fk_resep_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE,
+    CONSTRAINT fk_resep_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE
+);
+
+-- =============================================
+-- TABLE: RESEP_OBAT (Penghubung Resep & Obat)
+-- =============================================
+
+CREATE TABLE RESEP_OBAT (
+    id_resep_obat VARCHAR2(20) PRIMARY KEY,
+    id_resep VARCHAR2(20) NOT NULL,
+    id_obat VARCHAR2(20) NOT NULL,
+    jumlah INTEGER NOT NULL,
+    aturan_pakai VARCHAR2(100) NOT NULL,
+    CONSTRAINT fk_resep_obat_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+    CONSTRAINT fk_resep_obat_obat FOREIGN KEY (id_obat) REFERENCES OBAT(id_obat) ON DELETE CASCADE,
+    CONSTRAINT chk_jumlah_obat CHECK (jumlah > 0)
+);
+
+-- =============================================
+-- TABLE: TRANSAKSI_PEMBAYARAN
+-- =============================================
+
+CREATE TABLE TRANSAKSI_PEMBAYARAN (
+    id_transaksi VARCHAR2(20) PRIMARY KEY,
+    id_pasien VARCHAR2(20) NOT NULL,
+    id_resep VARCHAR2(20) NOT NULL,
+    id_rawat VARCHAR2(20),
+    tanggal_transaksi DATE NOT NULL,
+    total_bayar NUMBER(12,2) NOT NULL,
+    metode_bayar VARCHAR2(20) NOT NULL,
+    CONSTRAINT fk_trans_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+    CONSTRAINT fk_trans_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+    CONSTRAINT fk_trans_rawat FOREIGN KEY (id_rawat) REFERENCES RAWAT_INAP(id_rawat) ON DELETE CASCADE,
+    CONSTRAINT chk_total_bayar CHECK (total_bayar >= 0),
+    CONSTRAINT chk_metode_bayar CHECK (metode_bayar IN ('Tunai', 'Transfer', 'Kartu Kredit', 'Kartu Debit', 'BPJS'))
+);
+
+-- =============================================
+-- TRIGGER: Kontrol Stok Obat (Fitur 1)
+-- =============================================
+
+CREATE OR REPLACE TRIGGER trg_kontrol_stok_obat
+BEFORE UPDATE OF stok ON OBAT
+FOR EACH ROW
+BEGIN
+    IF :NEW.stok < 10 THEN
+        DBMS_OUTPUT.PUT_LINE('PERINGATAN: Stok obat ' || :NEW.nama_obat || ' tinggal ' || :NEW.stok || ' unit!');
+    END IF;
+    
+    IF :NEW.stok < 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Stok obat tidak boleh kurang dari 0!');
+    END IF;
+END;
+/
+
+-- =============================================
+-- TRIGGER: Kurangi Stok Obat Saat Resep Dibuat
+-- =============================================
+
+CREATE OR REPLACE TRIGGER trg_kurangi_stok_obat
+AFTER INSERT ON RESEP_OBAT
+FOR EACH ROW
+DECLARE
+    v_stok_sekarang INTEGER;
+BEGIN
+    -- Ambil stok saat ini
+    SELECT stok INTO v_stok_sekarang
+    FROM OBAT
+    WHERE id_obat = :NEW.id_obat;
+    
+    -- Cek apakah stok cukup
+    IF v_stok_sekarang < :NEW.jumlah THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Stok obat tidak mencukupi! Stok tersedia: ' || v_stok_sekarang);
+    END IF;
+    
+    -- Kurangi stok
+    UPDATE OBAT
+    SET stok = stok - :NEW.jumlah
+    WHERE id_obat = :NEW.id_obat;
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20004, 'Obat tidak ditemukan!');
+END;
+/
+
+-- =============================================
+-- PROCEDURE: Hitung Tagihan Pasien Otomatis (Fitur 2)
+-- =============================================
+
+CREATE OR REPLACE PROCEDURE sp_hitung_tagihan_pasien(
+    p_id_pasien IN VARCHAR2,
+    p_id_rawat IN VARCHAR2,
+    p_id_resep IN VARCHAR2,
+    p_metode_bayar IN VARCHAR2,
+    p_total_tagihan OUT NUMBER
+)
+AS
+    v_biaya_kamar NUMBER := 0;
+    v_biaya_obat NUMBER := 0;
+    v_lama_rawat NUMBER := 0;
+    v_tarif_kamar NUMBER := 0;
+    v_id_transaksi VARCHAR2(20);
+BEGIN
+    -- Hitung biaya rawat inap
+    SELECT 
+        CASE k.kelas_kamar
+            WHEN 'VIP' THEN 500000
+            WHEN 'Kelas 1' THEN 300000
+            WHEN 'Kelas 2' THEN 200000
+            WHEN 'Kelas 3' THEN 100000
+            ELSE 0
+        END * (NVL(ri.tanggal_keluar, SYSDATE) - ri.tanggal_masuk)
+    INTO v_biaya_kamar
+    FROM RAWAT_INAP ri
+    JOIN KAMAR k ON ri.id_kamar = k.id_kamar
+    WHERE ri.id_rawat = p_id_rawat;
+    
+    -- Hitung biaya obat dari resep_obat
+    SELECT NVL(SUM(o.harga * ro.jumlah), 0)
+    INTO v_biaya_obat
+    FROM RESEP_OBAT ro
+    JOIN OBAT o ON ro.id_obat = o.id_obat
+    WHERE ro.id_resep = p_id_resep;
+    
+    -- Total tagihan
+    p_total_tagihan := v_biaya_kamar + v_biaya_obat;
+    
+    -- Generate ID transaksi
+    SELECT 'TRX' || LPAD(seq_transaksi.NEXTVAL, 5, '0') INTO v_id_transaksi FROM DUAL;
+    
+    -- Insert transaksi pembayaran
+    INSERT INTO TRANSAKSI_PEMBAYARAN (
+        id_transaksi, id_pasien, id_resep, id_rawat, 
+        tanggal_transaksi, total_bayar, metode_bayar
+    ) VALUES (
+        v_id_transaksi, p_id_pasien, p_id_resep, p_id_rawat,
+        SYSDATE, p_total_tagihan, p_metode_bayar
+    );
+    
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Tagihan berhasil dihitung: Rp ' || TO_CHAR(p_total_tagihan, '999,999,999'));
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_total_tagihan := 0;
+        DBMS_OUTPUT.PUT_LINE('Data tidak ditemukan');
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20002, 'Error: ' || SQLERRM);
+END;
+/
+
+-- =============================================
+-- FUNCTION: Status Pasien (Rawat Inap/Jalan) (Fitur 3)
+-- =============================================
+
+CREATE OR REPLACE FUNCTION fn_status_pasien(
+    p_id_pasien VARCHAR2
+)
+RETURN VARCHAR2
+AS
+    v_status VARCHAR2(20);
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM RAWAT_INAP
+    WHERE id_pasien = p_id_pasien
+    AND tanggal_keluar IS NULL;
+    
+    IF v_count > 0 THEN
+        v_status := 'Rawat Inap';
+    ELSE
+        v_status := 'Rawat Jalan';
+    END IF;
+    
+    RETURN v_status;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN 'Unknown';
+END;
+/
+
+-- =============================================
+-- VIEW: Laporan Pasien per Dokter (Fitur 4)
+-- =============================================
+
+CREATE OR REPLACE VIEW vw_laporan_pasien_per_dokter AS
+SELECT 
+    d.id_dokter,
+    d.nama AS nama_dokter,
+    d.spesialis,
+    d.departemen,
+    COUNT(DISTINCT rm.id_pasien) AS jumlah_pasien,
+    COUNT(rm.id_rekam) AS jumlah_kunjungan,
+    TO_CHAR(MIN(NVL((SELECT MIN(tanggal_transaksi) 
+                     FROM TRANSAKSI_PEMBAYARAN tp 
+                     JOIN RESEP rs ON tp.id_resep = rs.id_resep 
+                     WHERE rs.id_dokter = d.id_dokter), SYSDATE)), 'DD-MON-YYYY') AS kunjungan_pertama,
+    TO_CHAR(MAX(NVL((SELECT MAX(tanggal_transaksi) 
+                     FROM TRANSAKSI_PEMBAYARAN tp 
+                     JOIN RESEP rs ON tp.id_resep = rs.id_resep 
+                     WHERE rs.id_dokter = d.id_dokter), SYSDATE)), 'DD-MON-YYYY') AS kunjungan_terakhir
+FROM DOKTER d
+LEFT JOIN REKAM_MEDIS rm ON d.id_dokter = rm.id_dokter
+GROUP BY d.id_dokter, d.nama, d.spesialis, d.departemen
+ORDER BY jumlah_pasien DESC;
+
+-- =============================================
+-- VIEW: Laporan Pasien per Departemen (Fitur 4)
+-- =============================================
+
+CREATE OR REPLACE VIEW vw_laporan_pasien_per_departemen AS
+SELECT 
+    d.departemen,
+    COUNT(DISTINCT d.id_dokter) AS jumlah_dokter,
+    COUNT(DISTINCT rm.id_pasien) AS jumlah_pasien,
+    COUNT(rm.id_rekam) AS total_kunjungan,
+    ROUND(COUNT(rm.id_rekam) / NULLIF(COUNT(DISTINCT d.id_dokter), 0), 2) AS rata_rata_per_dokter
+FROM DOKTER d
+LEFT JOIN REKAM_MEDIS rm ON d.id_dokter = rm.id_dokter
+GROUP BY d.departemen
+ORDER BY jumlah_pasien DESC;
+
+-- =============================================
+-- QUERY OPTIMASI: Execution Plan Analysis (Fitur 5)
+-- =============================================
+
+-- Index untuk optimasi query
+CREATE INDEX idx_rekam_pasien ON REKAM_MEDIS(id_pasien);
+CREATE INDEX idx_rekam_dokter ON REKAM_MEDIS(id_dokter);
+CREATE INDEX idx_rawat_pasien ON RAWAT_INAP(id_pasien);
+CREATE INDEX idx_rawat_kamar ON RAWAT_INAP(id_kamar);
+CREATE INDEX idx_resep_dokter ON RESEP(id_dokter);
+CREATE INDEX idx_resep_pasien ON RESEP(id_pasien);
+CREATE INDEX idx_resep_obat_resep ON RESEP_OBAT(id_resep);
+CREATE INDEX idx_resep_obat_obat ON RESEP_OBAT(id_obat);
+CREATE INDEX idx_trans_pasien ON TRANSAKSI_PEMBAYARAN(id_pasien);
+CREATE INDEX idx_trans_tanggal ON TRANSAKSI_PEMBAYARAN(tanggal_transaksi);
+
+-- =============================================
+-- INSERT SAMPLE DATA
+-- =============================================
+
+-- Data Dokter
+INSERT INTO DOKTER VALUES ('DKT001', 'Dr. Ahmad Surya, Sp.PD', 'Penyakit Dalam', 'Penyakit Dalam');
+INSERT INTO DOKTER VALUES ('DKT002', 'Dr. Siti Nurhaliza, Sp.A', 'Anak', 'Pediatri');
+INSERT INTO DOKTER VALUES ('DKT003', 'Dr. Budi Santoso, Sp.B', 'Bedah', 'Bedah');
+INSERT INTO DOKTER VALUES ('DKT004', 'Dr. Maya Wijaya, Sp.JP', 'Jantung', 'Kardiologi');
+INSERT INTO DOKTER VALUES ('DKT005', 'Dr. Rini Kusuma, Sp.OG', 'Kandungan', 'Obstetri');
+
+-- Data Pasien
+INSERT INTO PASIEN VALUES ('PSN001', 'Andi Wijaya', TO_DATE('1985-03-15', 'YYYY-MM-DD'), 'Jl. Merdeka No. 123, Jakarta');
+INSERT INTO PASIEN VALUES ('PSN002', 'Dewi Lestari', TO_DATE('1990-07-22', 'YYYY-MM-DD'), 'Jl. Sudirman No. 45, Bandung');
+INSERT INTO PASIEN VALUES ('PSN003', 'Budi Hartono', TO_DATE('1978-11-05', 'YYYY-MM-DD'), 'Jl. Gatot Subroto No. 78, Surabaya');
+INSERT INTO PASIEN VALUES ('PSN004', 'Sari Melati', TO_DATE('1995-01-30', 'YYYY-MM-DD'), 'Jl. Ahmad Yani No. 12, Yogyakarta');
+INSERT INTO PASIEN VALUES ('PSN005', 'Rudi Gunawan', TO_DATE('1982-09-18', 'YYYY-MM-DD'), 'Jl. Diponegoro No. 56, Semarang');
+
+-- Data Obat
+INSERT INTO OBAT VALUES ('OBT001', 'Paracetamol 500mg', 'Analgesik', '3x1 tablet', 150, 5000);
+INSERT INTO OBAT VALUES ('OBT002', 'Amoxicillin 500mg', 'Antibiotik', '3x1 kapsul', 200, 8000);
+INSERT INTO OBAT VALUES ('OBT003', 'Omeprazole 20mg', 'Antasida', '2x1 kapsul', 100, 12000);
+INSERT INTO OBAT VALUES ('OBT004', 'Captopril 25mg', 'Antihipertensi', '2x1 tablet', 180, 6000);
+INSERT INTO OBAT VALUES ('OBT005', 'Metformin 500mg', 'Antidiabetes', '3x1 tablet', 5, 7000);
+
+-- Data Kamar
+INSERT INTO KAMAR VALUES ('KMR001', 'Melati', '101', 'VIP');
+INSERT INTO KAMAR VALUES ('KMR002', 'Mawar', '201', 'Kelas 1');
+INSERT INTO KAMAR VALUES ('KMR003', 'Dahlia', '301', 'Kelas 2');
+INSERT INTO KAMAR VALUES ('KMR004', 'Anggrek', '401', 'Kelas 3');
+INSERT INTO KAMAR VALUES ('KMR005', 'Tulip', '102', 'VIP');
+
+-- Data Rekam Medis
+INSERT INTO REKAM_MEDIS VALUES ('RKM001', 'PSN001', 'DKT001', 'Hipertensi Grade 2', 'Pasien disarankan kontrol rutin');
+INSERT INTO REKAM_MEDIS VALUES ('RKM002', 'PSN002', 'DKT002', 'Demam Berdarah', 'Perlu rawat inap untuk observasi');
+INSERT INTO REKAM_MEDIS VALUES ('RKM003', 'PSN003', 'DKT003', 'Appendisitis Akut', 'Perlu operasi segera');
+INSERT INTO REKAM_MEDIS VALUES ('RKM004', 'PSN004', 'DKT004', 'Aritmia Jantung', 'Pasang EKG monitoring');
+INSERT INTO REKAM_MEDIS VALUES ('RKM005', 'PSN005', 'DKT001', 'Diabetes Mellitus Type 2', 'Kontrol gula darah rutin');
+
+-- Data Rawat Inap
+INSERT INTO RAWAT_INAP VALUES ('RWI001', 'PSN002', 'KMR002', TO_DATE('2024-11-01', 'YYYY-MM-DD'), TO_DATE('2024-11-05', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP VALUES ('RWI002', 'PSN003', 'KMR001', TO_DATE('2024-11-03', 'YYYY-MM-DD'), TO_DATE('2024-11-07', 'YYYY-MM-DD'));
+INSERT INTO RAWAT_INAP VALUES ('RWI003', 'PSN004', 'KMR005', TO_DATE('2024-11-10', 'YYYY-MM-DD'), NULL);
+
+-- Data Resep
+INSERT INTO RESEP VALUES ('RSP001', TO_DATE('2024-11-01', 'YYYY-MM-DD'), 'Minum obat setelah makan', 'DKT001', 'PSN001');
+INSERT INTO RESEP VALUES ('RSP002', TO_DATE('2024-11-01', 'YYYY-MM-DD'), 'Banyak istirahat dan minum air', 'DKT002', 'PSN002');
+INSERT INTO RESEP VALUES ('RSP003', TO_DATE('2024-11-03', 'YYYY-MM-DD'), 'Post operasi', 'DKT003', 'PSN003');
+INSERT INTO RESEP VALUES ('RSP004', TO_DATE('2024-11-10', 'YYYY-MM-DD'), 'Kontrol jantung berkala', 'DKT004', 'PSN004');
+INSERT INTO RESEP VALUES ('RSP005', TO_DATE('2024-11-12', 'YYYY-MM-DD'), 'Diet rendah gula', 'DKT001', 'PSN005');
+
+-- Data Resep Obat (Relasi Resep dengan Obat)
+INSERT INTO RESEP_OBAT VALUES ('RO001', 'RSP001', 'OBT004', 30, '2x1 tablet setelah makan');
+INSERT INTO RESEP_OBAT VALUES ('RO002', 'RSP001', 'OBT001', 10, '3x1 tablet jika demam');
+INSERT INTO RESEP_OBAT VALUES ('RO003', 'RSP002', 'OBT001', 15, '3x1 tablet');
+INSERT INTO RESEP_OBAT VALUES ('RO004', 'RSP002', 'OBT002', 21, '3x1 kapsul selama 7 hari');
+INSERT INTO RESEP_OBAT VALUES ('RO005', 'RSP003', 'OBT002', 14, '2x1 kapsul');
+INSERT INTO RESEP_OBAT VALUES ('RO006', 'RSP003', 'OBT001', 20, '3x1 tablet');
+INSERT INTO RESEP_OBAT VALUES ('RO007', 'RSP004', 'OBT004', 60, '2x1 tablet pagi dan malam');
+INSERT INTO RESEP_OBAT VALUES ('RO008', 'RSP005', 'OBT005', 90, '3x1 tablet sebelum makan');
+INSERT INTO RESEP_OBAT VALUES ('RO009', 'RSP005', 'OBT003', 30, '2x1 kapsul');
+
+-- Data Transaksi Pembayaran
+INSERT INTO TRANSAKSI_PEMBAYARAN VALUES ('TRX001', 'PSN001', 'RSP001', NULL, TO_DATE('2024-11-01', 'YYYY-MM-DD'), 250000, 'Tunai');
+INSERT INTO TRANSAKSI_PEMBAYARAN VALUES ('TRX002', 'PSN002', 'RSP002', 'RWI001', TO_DATE('2024-11-05', 'YYYY-MM-DD'), 1500000, 'BPJS');
+INSERT INTO TRANSAKSI_PEMBAYARAN VALUES ('TRX003', 'PSN003', 'RSP003', 'RWI002', TO_DATE('2024-11-07', 'YYYY-MM-DD'), 5000000, 'Transfer');
+INSERT INTO TRANSAKSI_PEMBAYARAN VALUES ('TRX004', 'PSN004', 'RSP004', 'RWI003', TO_DATE('2024-11-10', 'YYYY-MM-DD'), 800000, 'Kartu Kredit');
+INSERT INTO TRANSAKSI_PEMBAYARAN VALUES ('TRX005', 'PSN005', 'RSP005', NULL, TO_DATE('2024-11-12', 'YYYY-MM-DD'), 350000, 'Tunai');
+
+COMMIT;
+
+-- =============================================
+-- TESTING QUERIES
+-- =============================================
+
+-- Test View Laporan Per Dokter
+SELECT * FROM vw_laporan_pasien_per_dokter;
+
+-- Test View Laporan Per Departemen
+SELECT * FROM vw_laporan_pasien_per_departemen;
+
+-- Test Function Status Pasien
+SELECT 
+    id_pasien, 
+    nama, 
+    fn_status_pasien(id_pasien) AS status
+FROM PASIEN;
+
+-- Test Relasi Resep dengan Obat
+SELECT 
+    r.id_resep,
+    p.nama AS nama_pasien,
+    d.nama AS nama_dokter,
+    o.nama_obat,
+    ro.jumlah,
+    ro.aturan_pakai,
+    o.harga,
+    (ro.jumlah * o.harga) AS subtotal
+FROM RESEP r
+JOIN PASIEN p ON r.id_pasien = p.id_pasien
+JOIN DOKTER d ON r.id_dokter = d.id_dokter
+JOIN RESEP_OBAT ro ON r.id_resep = ro.id_resep
+JOIN OBAT o ON ro.id_obat = o.id_obat
+ORDER BY r.id_resep;
+
+-- Test Stok Obat
+SELECT 
+    id_obat,
+    nama_obat,
+    stok,
+    CASE 
+        WHEN stok < 10 THEN 'STOK MENIPIS'
+        WHEN stok < 50 THEN 'STOK RENDAH'
+        ELSE 'STOK CUKUP'
+    END AS status_stok
+FROM OBAT
+ORDER BY stok ASC;
+
+-- Test Procedure Hitung Tagihan
+DECLARE
+    v_total NUMBER;
+BEGIN
+    sp_hitung_tagihan_pasien('PSN002', 'RWI001', 'RSP002', 'BPJS', v_total);
+    DBMS_OUTPUT.PUT_LINE('Total Tagihan: Rp ' || TO_CHAR(v_total, '999,999,999'));
+END;
+/
+
+-- Query untuk Execution Plan Analysis
+EXPLAIN PLAN FOR
+SELECT 
+    p.nama,
+    d.nama AS dokter,
+    rm.diagnosa,
+    tp.total_bayar,
+    fn_status_pasien(p.id_pasien) AS status
+FROM PASIEN p
+JOIN REKAM_MEDIS rm ON p.id_pasien = rm.id_pasien
+JOIN DOKTER d ON rm.id_dokter = d.id_dokter
+LEFT JOIN TRANSAKSI_PEMBAYARAN tp ON p.id_pasien = tp.id_pasien
+WHERE d.departemen = 'Penyakit Dalam'
+ORDER BY tp.tanggal_transaksi DESC;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+COMMIT;

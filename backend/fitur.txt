@@ -1,0 +1,185 @@
+-- SKRIP PERBAIKAN: Membuat SEQUENCE yang dibutuhkan oleh PROCEDURE
+-- HARUS DIJALANKAN SEBELUM PROCEDURE!
+CREATE SEQUENCE seq_transaksi START WITH 1 INCREMENT BY 1;
+/
+
+-- =============================================
+-- PROCEDURE: Hitung Tagihan Pasien Otomatis (Fitur 2) - VERSI PERBAIKAN
+-- =============================================
+CREATE OR REPLACE PROCEDURE sp_hitung_tagihan_pasien(
+    p_id_pasien IN VARCHAR2,
+    p_id_rawat IN VARCHAR2, -- Sekarang bisa NULL untuk transaksi rawat jalan
+    p_id_resep IN VARCHAR2, -- Sekarang bisa NULL jika transaksi non-resep
+    p_metode_bayar IN VARCHAR2,
+    p_total_tagihan OUT NUMBER
+)
+AS
+    v_biaya_kamar NUMBER := 0;
+    v_biaya_obat NUMBER := 0;
+    v_lama_rawat NUMBER := 0;
+    v_id_transaksi VARCHAR2(20);
+    v_tarif_harian NUMBER := 0;
+BEGIN
+    -- 1. Hitung biaya rawat inap (Hanya jika p_id_rawat DIBERIKAN)
+    IF p_id_rawat IS NOT NULL THEN
+        -- Tentukan tarif harian kamar dan lama rawat
+        SELECT 
+            CASE k.kelas_kamar
+                WHEN 'VIP' THEN 500000
+                WHEN 'Kelas 1' THEN 300000
+                WHEN 'Kelas 2' THEN 200000
+                WHEN 'Kelas 3' THEN 100000
+                ELSE 0
+            END,
+            (NVL(ri.tanggal_keluar, SYSDATE) - ri.tanggal_masuk) + 1 -- Ditambah 1 hari untuk durasi inap
+        INTO v_tarif_harian, v_lama_rawat
+        FROM RAWAT_INAP ri
+        JOIN KAMAR k ON ri.id_kamar = k.id_kamar
+        WHERE ri.id_rawat = p_id_rawat;
+
+        v_biaya_kamar := v_tarif_harian * v_lama_rawat;
+    END IF;
+    
+    -- 2. Hitung biaya obat (Hanya jika p_id_resep DIBERIKAN)
+    IF p_id_resep IS NOT NULL THEN
+        SELECT NVL(SUM(o.harga * ro.jumlah), 0)
+        INTO v_biaya_obat
+        FROM RESEP_OBAT ro
+        JOIN OBAT o ON ro.id_obat = o.id_obat
+        WHERE ro.id_resep = p_id_resep;
+    END IF;
+    
+    -- 3. Total tagihan
+    p_total_tagihan := v_biaya_kamar + v_biaya_obat;
+    
+    -- 4. Generate ID transaksi
+    SELECT 'TRX' || LPAD(seq_transaksi.NEXTVAL, 5, '0') INTO v_id_transaksi FROM DUAL;
+    
+    -- 5. Insert transaksi pembayaran
+    INSERT INTO TRANSAKSI_PEMBAYARAN (
+        id_transaksi, id_pasien, id_resep, id_rawat, 
+        tanggal_transaksi, total_bayar, metode_bayar
+    ) VALUES (
+        v_id_transaksi, p_id_pasien, p_id_resep, p_id_rawat,
+        SYSDATE, p_total_tagihan, p_metode_bayar
+    );
+    
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Tagihan berhasil dihitung dan disimpan. ID Transaksi: ' || v_id_transaksi || '. Total: Rp ' || TO_CHAR(p_total_tagihan, 'FM999,999,999.00'));
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        ROLLBACK;
+        p_total_tagihan := 0;
+        DBMS_OUTPUT.PUT_LINE('Data ID Rawat Inap atau ID Resep tidak ditemukan.');
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20002, 'Error saat memproses tagihan: ' || SQLERRM);
+END;
+/
+
+-- =============================================
+-- VIEW: Laporan Pasien per Dokter (Fitur 4) - VERSI PERBAIKAN
+-- =============================================
+
+CREATE OR REPLACE VIEW vw_laporan_pasien_per_dokter AS
+SELECT 
+    d.id_dokter,
+    d.nama AS nama_dokter,
+    d.spesialis,
+    d.departemen,
+    COUNT(DISTINCT rm.id_pasien) AS jumlah_pasien_unik,
+    COUNT(rm.id_rekam) AS jumlah_kunjungan_rm,
+    -- Mencari tanggal kunjungan pertama dan terakhir dari tabel Transaksi/Resep
+    (SELECT MIN(tp.tanggal_transaksi) 
+     FROM TRANSAKSI_PEMBAYARAN tp 
+     JOIN RESEP rs ON tp.id_resep = rs.id_resep 
+     WHERE rs.id_dokter = d.id_dokter) AS kunjungan_pertama,
+    (SELECT MAX(tp.tanggal_transaksi) 
+     FROM TRANSAKSI_PEMBAYARAN tp 
+     JOIN RESEP rs ON tp.id_resep = rs.id_resep 
+     WHERE rs.id_dokter = d.id_dokter) AS kunjungan_terakhir
+FROM DOKTER d
+LEFT JOIN REKAM_MEDIS rm ON d.id_dokter = rm.id_dokter
+GROUP BY d.id_dokter, d.nama, d.spesialis, d.departemen
+ORDER BY jumlah_pasien_unik DESC;
+-- =============================================
+-- VIEW: Laporan Pasien per Departemen (Fitur 4)
+-- =============================================
+
+CREATE OR REPLACE VIEW vw_laporan_pasien_per_departemen AS
+SELECT 
+    d.departemen,
+    COUNT(DISTINCT d.id_dokter) AS jumlah_dokter,
+    COUNT(DISTINCT rm.id_pasien) AS jumlah_pasien,
+    COUNT(rm.id_rekam) AS total_kunjungan,
+    ROUND(COUNT(rm.id_rekam) / NULLIF(COUNT(DISTINCT d.id_dokter), 0), 2) AS rata_rata_per_dokter
+FROM DOKTER d
+LEFT JOIN REKAM_MEDIS rm ON d.id_dokter = rm.id_dokter
+GROUP BY d.departemen
+ORDER BY jumlah_pasien DESC;
+
+-- =============================================
+-- TRIGGER: Kontrol Stok Obat (Fitur 1)
+-- =============================================
+
+CREATE OR REPLACE TRIGGER trg_kontrol_stok_obat
+BEFORE UPDATE OF stok ON OBAT
+FOR EACH ROW
+BEGIN
+    IF :NEW.stok < 10 THEN
+        DBMS_OUTPUT.PUT_LINE('PERINGATAN: Stok obat ' || :NEW.nama_obat || ' tinggal ' || :NEW.stok || ' unit!');
+    END IF;
+    
+    IF :NEW.stok < 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Stok obat tidak boleh kurang dari 0!');
+    END IF;
+END;
+/
+
+-- =============================================
+-- TRIGGER: Kurangi Stok Obat Saat Resep Dibuat
+-- =============================================
+
+CREATE OR REPLACE TRIGGER trg_kurangi_stok_obat
+AFTER INSERT ON RESEP_OBAT
+FOR EACH ROW
+DECLARE
+    v_stok_sekarang INTEGER;
+BEGIN
+    -- Ambil stok saat ini
+    SELECT stok INTO v_stok_sekarang
+    FROM OBAT
+    WHERE id_obat = :NEW.id_obat;
+    
+    -- Cek apakah stok cukup
+    IF v_stok_sekarang < :NEW.jumlah THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Stok obat tidak mencukupi! Stok tersedia: ' || v_stok_sekarang);
+    END IF;
+    
+    -- Kurangi stok
+    UPDATE OBAT
+    SET stok = stok - :NEW.jumlah
+    WHERE id_obat = :NEW.id_obat;
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20004, 'Obat tidak ditemukan!');
+END;
+/
+-- =============================================
+-- QUERY OPTIMASI: Execution Plan Analysis (Fitur 5)
+-- =============================================
+
+-- Index untuk optimasi query
+CREATE INDEX idx_rekam_pasien ON REKAM_MEDIS(id_pasien);
+CREATE INDEX idx_rekam_dokter ON REKAM_MEDIS(id_dokter);
+CREATE INDEX idx_rawat_pasien ON RAWAT_INAP(id_pasien);
+CREATE INDEX idx_rawat_kamar ON RAWAT_INAP(id_kamar);
+CREATE INDEX idx_resep_dokter ON RESEP(id_dokter);
+CREATE INDEX idx_resep_pasien ON RESEP(id_pasien);
+CREATE INDEX idx_resep_obat_resep ON RESEP_OBAT(id_resep);
+CREATE INDEX idx_resep_obat_obat ON RESEP_OBAT(id_obat);
+CREATE INDEX idx_trans_pasien ON TRANSAKSI_PEMBAYARAN(id_pasien);
+CREATE INDEX idx_trans_tanggal ON TRANSAKSI_PEMBAYARAN(tanggal_transaksi);
+
