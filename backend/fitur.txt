@@ -183,3 +183,49 @@ CREATE INDEX idx_resep_obat_obat ON RESEP_OBAT(id_obat);
 CREATE INDEX idx_trans_pasien ON TRANSAKSI_PEMBAYARAN(id_pasien);
 CREATE INDEX idx_trans_tanggal ON TRANSAKSI_PEMBAYARAN(tanggal_transaksi);
 
+
+CREATE OR REPLACE FUNCTION fn_status_pasien(
+    p_id_pasien VARCHAR2
+)
+RETURN VARCHAR2
+AS
+    v_status VARCHAR2(20);
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM RAWAT_INAP
+    WHERE id_pasien = p_id_pasien
+    AND tanggal_keluar IS NULL;
+    
+    IF v_count > 0 THEN
+        v_status := 'Rawat Inap';
+    ELSE
+        v_status := 'Rawat Jalan';
+    END IF;
+    
+    RETURN v_status;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN 'Unknown';
+END;
+/
+
+
+-- Berikan izin dasar
+GRANT CONNECT, RESOURCE TO HOSPITAL;
+
+-- Berikan izin untuk membuat/menggunakan FUNCTION/PROCEDURE/VIEW
+GRANT CREATE PROCEDURE, CREATE VIEW TO HOSPITAL;
+
+-- Berikan izin SELECT pada kamus data (jika diperlukan untuk kueri tertentu)
+GRANT SELECT ANY DICTIONARY TO HOSPITAL; 
+
+-- Jika tabel dibuat oleh user lain (misalnya SYSTEM), Anda harus memberikan izin SELECT, UPDATE, dll.
+-- CONTOH: GRANT SELECT ON SYSTEM.PASIEN TO HOSPITAL;
+
+-- Ganti [NAMA_OWNER] jika bukan HOSPITAL
+SELECT status, object_type 
+FROM all_objects 
+WHERE object_name = 'GET_STATUS_PASIEN' AND owner = 'HOSPITAL';

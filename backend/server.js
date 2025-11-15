@@ -1,8 +1,12 @@
 // server.js
 const express = require('express');
-const cors = require('cors'); // Untuk mengizinkan koneksi dari Front-End
+const cors = require('cors');
 const db = require('./config/db');
+
+// Import routes
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const pasienRoutes = require('./routes/pasienRoutes');
+const billingRoutes = require('./routes/billingRoutes');
 
 // Inisialisasi Aplikasi Express
 const app = express();
@@ -14,6 +18,32 @@ app.use(express.json()); // Parsing body JSON dari request
 
 // Routes
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/pasien', pasienRoutes);
+app.use('/api/billing', billingRoutes);
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Hospital Management API is running',
+    version: '1.0.0'
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Internal Server Error',
+    error: err.message
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Route not found'
+  });
+});
 
 // Mulai Server
 db.initialize()
@@ -30,7 +60,7 @@ db.initialize()
 
 // Handle penutupan server
 process.on('SIGINT', async () => {
-    console.log('\nServer dimatikan, menutup koneksi pool Oracle...');
-    await db.closePool();
-    process.exit(0);
+  console.log('\nServer dimatikan, menutup koneksi pool Oracle...');
+  await db.closePool();
+  process.exit(0);
 });

@@ -1,5 +1,5 @@
 // src/components/DashboardContent.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Stethoscope, Pill, CreditCard, Star, MessageSquare } from 'lucide-react';
 
 // Komponen Pembantu untuk Kartu Statistik
@@ -38,6 +38,55 @@ const recentReviews = [
 ];
 
 const DashboardContent = () => {
+  const [stats, setStats] = useState({
+        totalPasien: 'Memuat...', 
+        totalDokter: 'Memuat...', 
+        stokObatRendah: 'Memuat...', 
+        transaksiHariIni: 'Memuat...'
+    });
+    const [loading, setLoading] = useState(true);
+
+    const formatRupiah = (angka) => {
+        if (angka === undefined || angka === null || isNaN(angka)) return "Rp0";
+        return "Rp" + angka.toLocaleString('id-ID');
+    };
+
+    // Panggilan API dilakukan langsung di dalam useEffect
+    useEffect(() => {
+        const fetchStats = async () => {
+            // URL API dideklarasikan secara lokal di sini
+            const apiUrl = 'http://localhost:5000/api/dashboard/stats'; 
+            
+            try {
+                const response = await fetch(apiUrl); // Menggunakan variabel lokal
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                setStats({
+                    totalPasien: data.totalPasien.toLocaleString('id-ID'),
+                    totalDokter: data.totalDokter.toLocaleString('id-ID'),
+                    stokObatRendah: data.stokObatRendah.toLocaleString('id-ID'),
+                    transaksiHariIni: formatRupiah(data.transaksiHariIni) 
+                });
+            } catch (error) {
+                console.error("Gagal mengambil data statistik dari API:", error);
+                setStats({
+                    totalPasien: 'Gagal', 
+                    totalDokter: 'Gagal', 
+                    stokObatRendah: 'Gagal', 
+                    transaksiHariIni: 'Gagal'
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+  }, []); // Hanya dipanggil sekali saat komponen dimuat
   return (
     <main className="p-6 space-y-6">
       <h3 className="text-2xl font-bold text-gray-700">Ringkasan Sistem</h3>
@@ -48,7 +97,7 @@ const DashboardContent = () => {
         {/* Pasien Card */}
         <StatCard
           title="Total Pasien"
-          value="120"
+          value={stats.totalPasien}
           icon={Users}
           iconBg="bg-blue-100"
           iconColor="text-blue-700"
@@ -57,7 +106,7 @@ const DashboardContent = () => {
         {/* Dokter Card */}
         <StatCard
           title="Total Dokter"
-          value="45"
+          value={stats.totalDokter}
           icon={Stethoscope}
           iconBg="bg-blue-100"
           iconColor="text-blue-700"
@@ -66,7 +115,7 @@ const DashboardContent = () => {
         {/* Obat Card (Menggunakan warna merah untuk indikator stok rendah) */}
         <StatCard
           title="Stok Obat Rendah"
-          value="8"
+          value={stats.stokObatRendah}
           icon={Pill}
           iconBg="bg-red-100"
           iconColor="text-red-700"
@@ -75,7 +124,7 @@ const DashboardContent = () => {
         {/* Transaksi Card */}
         <StatCard
           title="Transaksi Hari Ini"
-          value="Rp25.000.000"
+          value={stats.transaksiHariIni}
           icon={CreditCard}
           iconBg="bg-blue-100"
           iconColor="text-blue-700"
