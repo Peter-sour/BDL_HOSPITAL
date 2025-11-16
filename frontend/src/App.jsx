@@ -47,7 +47,7 @@ const App = () => {
             <div className="bg-gray-100 flex min-h-screen">
                 <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-h-screen ml-0 md:ml-64">
                     <Header toggleSidebar={toggleSidebar} />
                     
                     {/* Konten Dashboard (Rute) */}

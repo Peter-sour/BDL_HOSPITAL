@@ -121,3 +121,72 @@ CREATE TABLE TRANSAKSI_PEMBAYARAN (
     CONSTRAINT chk_total_bayar CHECK (total_bayar >= 0),
     CONSTRAINT chk_metode_bayar CHECK (metode_bayar IN ('Tunai', 'Transfer', 'Kartu Kredit', 'Kartu Debit', 'BPJS'))
 );
+
+
+-- ============================================
+-- PROCEDURE 1: Untuk LIHAT tagihan saja (tidak insert)
+-- ============================================
+CREATE OR REPLACE PROCEDURE sp_view_tagihan_pasien(
+    p_id_pasien IN VARCHAR2,
+    p_id_rawat IN VARCHAR2,
+    p_id_resep IN VARCHAR2,
+    p_total_tagihan OUT NUMBER,
+    p_biaya_kamar OUT NUMBER,
+    p_biaya_obat OUT NUMBER
+)
+AS
+BEGIN
+    p_biaya_kamar := 0;
+    p_biaya_obat := 0;
+    
+    -- Hitung biaya rawat inap
+    IF p_id_rawat IS NOT NULL THEN
+        BEGIN
+            SELECT 
+                CASE k.kelas_kamar
+                    WHEN 'VIP' THEN 500000
+                    WHEN 'Kelas 1' THEN 300000
+                    WHEN 'Kelas 2' THEN 200000
+                    WHEN 'Kelas 3' THEN 100000
+                    ELSE 0
+                END *  ROUND(NVL(ri.tanggal_keluar, SYSDATE) - ri.tanggal_masuk)
+            INTO p_biaya_kamar
+            FROM RAWAT_INAP ri
+            JOIN KAMAR k ON ri.id_kamar = k.id_kamar
+            WHERE ri.id_rawat = p_id_rawat;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                p_biaya_kamar := 0;
+        END;
+    END IF;
+    
+    -- Hitung biaya obat dari resep_obat
+    IF p_id_resep IS NOT NULL THEN
+        BEGIN
+            SELECT NVL(SUM(o.harga * ro.jumlah), 0)
+            INTO p_biaya_obat
+            FROM RESEP_OBAT ro
+            JOIN OBAT o ON ro.id_obat = o.id_obat
+            WHERE ro.id_resep = p_id_resep;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                p_biaya_obat := 0;
+        END;
+    END IF;
+    
+    -- Total tagihan
+    p_total_tagihan := p_biaya_kamar + p_biaya_obat;
+    
+    DBMS_OUTPUT.PUT_LINE('Estimasi tagihan: Rp ' || TO_CHAR(p_total_tagihan, '999,999,999'));
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Error sp_view_tagihan_pasien: ' || SQLERRM);
+END;
+/
+
+-- ============================================
+-- PROCEDURE 2: Untuk PROSES PEMBAYARAN (dengan insert)
+-- Ini procedure yang sudah ada, TIDAK PERLU DIUBAH!
+-- ============================================
+-- sp_hitung_tagihan_pasien (tetap seperti yang Anda punya)

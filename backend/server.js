@@ -7,6 +7,9 @@ const db = require('./config/db');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const pasienRoutes = require('./routes/pasienRoutes');
 const billingRoutes = require('./routes/billingRoutes');
+const medicineRoutes = require('./routes/medicineRoutes');
+const rawatInapRoutes = require('./routes/rawatInapRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 
 // Inisialisasi Aplikasi Express
 const app = express();
@@ -20,6 +23,9 @@ app.use(express.json()); // Parsing body JSON dari request
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/pasien', pasienRoutes);
 app.use('/api/billing', billingRoutes);
+app.use('/api/medicine', medicineRoutes);
+app.use('/api/rawat-inap', rawatInapRoutes);
+app.use('/api/doctors', doctorRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {

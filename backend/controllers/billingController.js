@@ -143,7 +143,7 @@ exports.getDetailTagihan = async (req, res) => {
         k.NO_KAMAR,
         ri.TANGGAL_MASUK,
         ri.TANGGAL_KELUAR,
-        (NVL(ri.TANGGAL_KELUAR, SYSDATE) - ri.TANGGAL_MASUK) AS LAMA_RAWAT,
+        ROUND(NVL(ri.TANGGAL_KELUAR, SYSDATE) - ri.TANGGAL_MASUK) AS LAMA_RAWAT,
         CASE k.KELAS_KAMAR
           WHEN 'VIP' THEN 500000
           WHEN 'Kelas 1' THEN 300000
