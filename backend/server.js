@@ -12,6 +12,7 @@ const rawatInapRoutes = require('./routes/rawatInapRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const resepRoutes = require('./routes/resepRoutes');
 const paymentRoutes = require('./routes/PaymentRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 // Inisialisasi Aplikasi Express
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/rawat-inap', rawatInapRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/resep', resepRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {

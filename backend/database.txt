@@ -517,3 +517,6 @@ ORDER BY tp.tanggal_transaksi DESC;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
 COMMIT;
+
+GRANT SELECT ON HOSPITAL.vw_laporan_pasien_per_dokter TO USER_NODE;
+GRANT SELECT ON HOSPITAL.vw_laporan_pasien_per_departemen TO USER_NODE;
