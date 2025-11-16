@@ -101,11 +101,19 @@ const DoctorPage = () => {
   };
 
   // Filter Dokter
-  const filteredDoctors = doctors.filter(doc =>
-    (doc.NAMA || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (doc.SPESIALIS || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (doc.DEPARTEMEN || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDoctors = doctors.filter(doc => {
+    const idDokter = doc.ID_DOKTER || doc.id_dokter || doc[0] || '';
+    const nama = doc.NAMA || doc.nama || doc[1] || '';
+    const spesialis = doc.SPESIALIS || doc.spesialis || doc[2] || '';
+    const departemen = doc.DEPARTEMEN || doc.departemen || doc[3] || '';
+    
+    return (
+      idDokter.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      spesialis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      departemen.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <main className="p-6">
@@ -129,10 +137,10 @@ const DoctorPage = () => {
         <div className="relative">
           <input
             type="text"
-            placeholder="Cari dokter (Nama, Spesialis, Departemen)..."
+            placeholder="Cari dokter (ID, Nama, Spesialis, Departemen)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64 p-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-80 p-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
         </div>

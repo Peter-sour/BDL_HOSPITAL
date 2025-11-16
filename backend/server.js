@@ -10,6 +10,8 @@ const billingRoutes = require('./routes/billingRoutes');
 const medicineRoutes = require('./routes/medicineRoutes');
 const rawatInapRoutes = require('./routes/rawatInapRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
+const resepRoutes = require('./routes/resepRoutes');
+const paymentRoutes = require('./routes/PaymentRoutes');
 
 // Inisialisasi Aplikasi Express
 const app = express();
@@ -26,6 +28,8 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/medicine', medicineRoutes);
 app.use('/api/rawat-inap', rawatInapRoutes);
 app.use('/api/doctors', doctorRoutes);
+app.use('/api/resep', resepRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {
