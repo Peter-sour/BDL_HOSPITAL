@@ -57,7 +57,7 @@ Before you begin, ensure you have the following installed:
 5.  **Start the application:**
 
     ```bash
-    npm start
+    node server.js
     ```
 
     This will start the Node.js server, which will listen for incoming requests.
