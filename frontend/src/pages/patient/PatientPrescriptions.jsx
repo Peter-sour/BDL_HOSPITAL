@@ -97,7 +97,7 @@ const PatientPrescriptions = ({ user }) => {
 
       {/* --- MODAL DETAIL OBAT (Sama seperti sebelumnya) --- */}
       {selectedPrescription && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 ">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-fade-in-up">
             <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-800">Rincian Obat</h3>

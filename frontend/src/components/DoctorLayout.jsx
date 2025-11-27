@@ -1,10 +1,22 @@
 // src/components/DoctorLayout.js
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useHistory } from 'react-router-dom';
+// 1. Import Ikon Lucide React
+import { 
+  LayoutDashboard, 
+  CalendarClock, 
+  Users, 
+  Stethoscope, // Ikon Keren buat Medis
+  User, 
+  LogOut, 
+  Menu,
+  Activity 
+} from 'lucide-react';
 
 const DoctorLayout = ({ children, title, subtitle, user }) => {
   const location = useLocation();
   const history = useHistory();
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -13,72 +25,126 @@ const DoctorLayout = ({ children, title, subtitle, user }) => {
   };
 
   const menuItems = [
-    { path: '/doctor/dashboard', label: 'Dashboard', icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" },
-    { path: '/doctor/appointments', label: 'Janji Temu', icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    { path: '/doctor/patients', label: 'Pasien Saya', icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
-    { path: '/doctor/medical-records', label: 'Rekam Medis & Resep', icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-    { path: '/doctor/profile', label: 'Profil Dokter', icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
+    { path: '/doctor/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={22} /> },
+    { path: '/doctor/appointments', label: 'Janji Temu', icon: <CalendarClock size={22} /> },
+    { path: '/doctor/patients', label: 'Pasien Saya', icon: <Users size={22} /> },
+    { path: '/doctor/medical-records', label: 'Rekam Medis & Resep', icon: <Stethoscope size={22} /> }, // Ikon Stetoskop
+    { path: '/doctor/profile', label: 'Profil Dokter', icon: <User size={22} /> },
   ];
 
   return (
-    <div className="flex h-screen bg-emerald-50 font-sans text-slate-800">
-      {/* Sidebar - Warna Hijau Emerald untuk Dokter */}
-      <aside className="w-64 bg-white shadow-xl z-20 hidden md:flex flex-col border-r border-emerald-100">
-        <div className="h-20 flex items-center px-8 border-b border-gray-100">
-          <div className="text-2xl font-bold text-emerald-600 tracking-wide flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+    <div className="flex h-screen bg-slate-100 font-sans text-slate-800 overflow-hidden">
+      
+      {/* --- SIDEBAR DINAMIS (Emerald Theme) --- */}
+      <aside 
+        className={`flex flex-col py-4 transition-all duration-300 ease-in-out ${isExpanded ? 'w-64 px-4' : 'w-20 px-2'} shrink-0`}
+      >
+        {/* Header: Toggle & Brand */}
+        <div className={`h-16 flex items-center mb-4 ${isExpanded ? 'justify-between' : 'justify-center'}`}>
+          
+          {isExpanded && (
+            <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm">
+                    <Activity size={20} />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-slate-700">SIMRS <span className="text-emerald-600 text-sm font-normal ml-1">Dokter</span></span>
             </div>
-            SIMRS <span className="text-xs font-normal text-slate-400 mt-1 ml-1">Dokter</span>
-          </div>
+          )}
+
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition"
+            title={isExpanded ? "Kecilkan Menu" : "Perbesar Menu"}
+          >
+            <Menu size={24} />
+          </button>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+
+        {/* Menu Navigasi */}
+        <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path}
-                className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
-                  isActive ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100' : 'text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-600'
-                }`}
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-4 py-3 rounded-full transition-all duration-200 group relative ${
+                  isActive 
+                    ? 'bg-emerald-100 text-emerald-800 font-bold' 
+                    : 'text-slate-500 hover:bg-slate-200'
+                } ${isExpanded ? 'px-4' : 'justify-center px-0'}`}
               >
-                <svg className={`w-5 h-5 mr-3 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
-                </svg>
-                {item.label}
+                {/* Icon */}
+                <span className={`shrink-0 ${isActive ? 'text-emerald-700' : 'text-slate-500'}`}>
+                  {item.icon}
+                </span>
+                
+                {/* Label (Collapsed) */}
+                {isExpanded && (
+                    <span className="whitespace-nowrap overflow-hidden transition-opacity duration-200">
+                        {item.label}
+                    </span>
+                )}
+
+                {/* Tooltip Hover */}
+                {!isExpanded && (
+                    <div className="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-lg">
+                        {item.label}
+                    </div>
+                )}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-gray-100">
-          <button onClick={handleLogout} className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            Logout
-          </button>
+
+        {/* Profile Footer */}
+        <div className={`mt-auto pt-4 border-t border-slate-200 ${isExpanded ? '' : 'flex flex-col items-center'}`}>
+            <div className={`flex items-center gap-3 mb-2 ${isExpanded ? 'px-2' : 'justify-center'}`}>
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-sm shadow shrink-0">
+                    D
+                </div>
+                {isExpanded && (
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-700 truncate">Dr. {user?.detail?.nama || user?.username}</p>
+                        <p className="text-xs text-slate-400 truncate">{user?.detail?.spesialis || 'Dokter'}</p>
+                    </div>
+                )}
+            </div>
+            
+            <button 
+                onClick={handleLogout}
+                className={`flex items-center gap-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-full transition-colors ${isExpanded ? 'px-4 w-full' : 'p-2 justify-center w-fit'}`}
+                title="Keluar"
+            >
+                <LogOut size={20} className="shrink-0" />
+                {isExpanded && <span>Keluar</span>}
+            </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-20 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-between px-8 z-10 sticky top-0 border-b border-emerald-100">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
-            {subtitle && <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>}
-          </div>
-          <div className="flex items-center space-x-4">
-             <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-emerald-700">Dr. {user?.detail?.nama || user?.username}</p>
-              <p className="text-xs text-slate-400">{user?.detail?.spesialis || 'Dokter Umum'}</p>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-lg shadow-emerald-200">
-              D
-            </div>
-          </div>
-        </header>
+      {/* --- MAIN CONTENT (FLOATING CARD) --- */}
+      <main className="flex-1 flex flex-col h-screen py-2 pr-2 overflow-hidden">
+        <div className="flex-1 bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col relative">
+            
+            {/* Header Sticky (Emerald Border Bottom) */}
+            <header className="h-16 flex items-center justify-between px-8 border-b border-emerald-50 bg-white sticky top-0 z-10 shrink-0">
+                <div>
+                    <h1 className="text-xl font-bold text-slate-800">{title}</h1>
+                    {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+                </div>
+                
+                {/* Hiasan Kanan */}
+                <div className="p-2 bg-emerald-50 rounded-full text-emerald-600">
+                    <Activity size={20} />
+                </div>
+            </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
-          <div className="max-w-7xl mx-auto space-y-6">
-            {children}
-          </div>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {children}
+                </div>
+            </div>
         </div>
       </main>
     </div>
