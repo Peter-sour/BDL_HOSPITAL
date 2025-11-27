@@ -19,7 +19,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors()); // Izinkan semua domain (untuk development)
+app.use(cors({
+  origin: '*'
+})); // Izinkan semua domain (untuk development)
 app.use(express.json()); // Parsing body JSON dari request
 
 // Routes

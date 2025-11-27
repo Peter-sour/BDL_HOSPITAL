@@ -15,9 +15,9 @@ exports.getDashboardStats = async (req, res) => {
         const totalDokter = await connection.execute(
             `SELECT COUNT(*) AS total FROM DOKTER`
         );
-        // 3. Stok Obat Rendah (Stok di bawah 20 unit, ganti sesuai kebutuhan)
+        // 3. Stok Obat Rendah (Stok di bawah sepuluh unit, ganti sesuai kebutuhan)
         const stokRendah = await connection.execute(
-            `SELECT COUNT(*) AS total FROM OBAT WHERE STOK < 20`
+            `SELECT COUNT(*) AS total FROM OBAT WHERE STOK < 10`
         );
         // 4. Total Transaksi Hari Ini
         const totalTransaksiHariIni = await connection.execute(

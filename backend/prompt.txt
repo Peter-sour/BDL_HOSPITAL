@@ -1,258 +1,787 @@
--- =============================================
+aku ada tabel ini "-- =============================================
+
 -- DATABASE RUMAH SAKIT - SCHEMA LENGKAP
--- =============================================
 
 -- =============================================
--- TABLE: PENGGUNA (User Management)
+
+
 -- =============================================
+
+-- TABLE: PENGGUNA (User Management)
+
+-- =============================================
+
 
 CREATE TABLE PENGGUNA (
+
     id_pengguna VARCHAR2(20) PRIMARY KEY,
+
     username VARCHAR2(50) NOT NULL UNIQUE,
+
     password VARCHAR2(255) NOT NULL,
+
     email VARCHAR2(100) NOT NULL UNIQUE,
+
     role VARCHAR2(20) NOT NULL,
+
     status VARCHAR2(20) DEFAULT 'Aktif',
+
     tanggal_daftar DATE NOT NULL,
+
     CONSTRAINT chk_role CHECK (role IN ('Pasien', 'Dokter', 'Admin')),
+
     CONSTRAINT chk_status CHECK (status IN ('Aktif', 'Nonaktif', 'Suspend'))
+
 );
 
+
 -- =============================================
+
 -- TABLE: PASIEN
+
 -- =============================================
+
 
 CREATE TABLE PASIEN (
+
     id_pasien VARCHAR2(20) PRIMARY KEY,
+
     id_pengguna VARCHAR2(20) NOT NULL,
+
     nama VARCHAR2(100) NOT NULL,
+
     tanggal_lahir DATE NOT NULL,
+
     alamat VARCHAR2(200) NOT NULL,
+
     no_telepon VARCHAR2(15),
+
     jenis_kelamin VARCHAR2(10),
+
     CONSTRAINT fk_pasien_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE,
+
     CONSTRAINT chk_pasien_nama CHECK (LENGTH(nama) >= 3),
+
     CONSTRAINT chk_jenis_kelamin CHECK (jenis_kelamin IN ('Laki-laki', 'Perempuan'))
+
 );
 
+
 -- =============================================
+
 -- TABLE: DOKTER
+
 -- =============================================
+
 
 CREATE TABLE DOKTER (
+
     id_dokter VARCHAR2(20) PRIMARY KEY,
+
     id_pengguna VARCHAR2(20) NOT NULL,
+
     nama VARCHAR2(100) NOT NULL,
+
     spesialis VARCHAR2(50) NOT NULL,
+
     departemen VARCHAR2(50) NOT NULL,
+
     no_telepon VARCHAR2(15),
+
     jadwal_praktik VARCHAR2(100),
+
     CONSTRAINT fk_dokter_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE,
+
     CONSTRAINT chk_dokter_nama CHECK (LENGTH(nama) >= 3)
+
 );
 
+
 -- =============================================
+
 -- TABLE: ADMIN
+
 -- =============================================
+
 
 CREATE TABLE ADMIN (
+
     id_admin VARCHAR2(20) PRIMARY KEY,
+
     id_pengguna VARCHAR2(20) NOT NULL,
+
     nama VARCHAR2(100) NOT NULL,
+
     departemen VARCHAR2(50),
+
     CONSTRAINT fk_admin_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE,
+
     CONSTRAINT chk_admin_nama CHECK (LENGTH(nama) >= 3)
+
 );
 
+
 -- =============================================
+
 -- TABLE: LOG_AKTIVITAS (Audit Trail)
+
 -- =============================================
+
 
 CREATE TABLE LOG_AKTIVITAS (
+
     id_log VARCHAR2(20) PRIMARY KEY,
+
     id_pengguna VARCHAR2(20) NOT NULL,
+
     tipe_aktivitas VARCHAR2(100) NOT NULL,
+
     deskripsi VARCHAR2(500),
+
     tanggal_aktivitas DATE NOT NULL,
+
     CONSTRAINT fk_log_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE
+
 );
 
+
 -- =============================================
+
 -- TABLE: OBAT
+
 -- =============================================
+
 
 CREATE TABLE OBAT (
+
     id_obat VARCHAR2(20) PRIMARY KEY,
+
     nama_obat VARCHAR2(100) NOT NULL,
+
     jenis_obat VARCHAR2(50) NOT NULL,
+
     dosis VARCHAR2(50) NOT NULL,
+
     stok INTEGER DEFAULT 0,
+
     harga NUMBER(10,2) NOT NULL,
+
     CONSTRAINT chk_stok_positive CHECK (stok >= 0),
+
     CONSTRAINT chk_harga_positive CHECK (harga >= 0)
+
 );
 
+
 -- =============================================
+
 -- TABLE: KAMAR
+
 -- =============================================
+
 
 CREATE TABLE KAMAR (
+
     id_kamar VARCHAR2(20) PRIMARY KEY,
+
     nama_kamar VARCHAR2(50) NOT NULL,
+
     no_kamar VARCHAR2(10) NOT NULL,
+
     kelas_kamar VARCHAR2(20) NOT NULL,
+
     CONSTRAINT chk_kelas_kamar CHECK (kelas_kamar IN ('VIP', 'Kelas 1', 'Kelas 2', 'Kelas 3'))
+
 );
 
+
 -- =============================================
+
 -- TABLE: REKAM_MEDIS
+
 -- =============================================
+
 
 CREATE TABLE REKAM_MEDIS (
+
     id_rekam VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_dokter VARCHAR2(20) NOT NULL,
+
     diagnosa VARCHAR2(500) NOT NULL,
+
     catatan VARCHAR2(1000),
+
     CONSTRAINT fk_rekam_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_rekam_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE
+
 );
 
+
 -- =============================================
+
 -- TABLE: RAWAT_INAP
+
 -- =============================================
+
 
 CREATE TABLE RAWAT_INAP (
+
     id_rawat VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_kamar VARCHAR2(20) NOT NULL,
+
     tanggal_masuk DATE NOT NULL,
+
     tanggal_keluar DATE,
+
     CONSTRAINT fk_rawat_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_rawat_kamar FOREIGN KEY (id_kamar) REFERENCES KAMAR(id_kamar) ON DELETE CASCADE,
+
     CONSTRAINT chk_tanggal_valid CHECK (tanggal_keluar IS NULL OR tanggal_keluar >= tanggal_masuk)
+
 );
 
+
 -- =============================================
+
 -- TABLE: RESEP
+
 -- =============================================
+
 
 CREATE TABLE RESEP (
+
     id_resep VARCHAR2(20) PRIMARY KEY,
+
     tanggal_resep DATE NOT NULL,
+
     catatan VARCHAR2(500),
+
     id_dokter VARCHAR2(20) NOT NULL,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     CONSTRAINT fk_resep_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE,
+
     CONSTRAINT fk_resep_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE
+
 );
 
+
 -- =============================================
+
 -- TABLE: RESEP_OBAT (Penghubung Resep & Obat)
+
 -- =============================================
+
 
 CREATE TABLE RESEP_OBAT (
+
     id_resep_obat VARCHAR2(20) PRIMARY KEY,
+
     id_resep VARCHAR2(20) NOT NULL,
+
     id_obat VARCHAR2(20) NOT NULL,
+
     jumlah INTEGER NOT NULL,
+
     aturan_pakai VARCHAR2(100) NOT NULL,
+
     CONSTRAINT fk_resep_obat_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+
     CONSTRAINT fk_resep_obat_obat FOREIGN KEY (id_obat) REFERENCES OBAT(id_obat) ON DELETE CASCADE,
+
     CONSTRAINT chk_jumlah_obat CHECK (jumlah > 0)
+
 );
 
+
 -- =============================================
+
 -- TABLE: APPOINTMENT (Janji Temu Pasien)
+
 -- =============================================
+
 
 CREATE TABLE APPOINTMENT (
+
     id_appointment VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_dokter VARCHAR2(20) NOT NULL,
+
     tanggal_appointment DATE NOT NULL,
+
     jam_appointment VARCHAR2(10) NOT NULL,
+
     keluhan VARCHAR2(500) NOT NULL,
+
     status VARCHAR2(20) DEFAULT 'Pending',
+
     tanggal_buat DATE NOT NULL,
+
     CONSTRAINT fk_appointment_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_appointment_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE,
+
     CONSTRAINT chk_status_appointment CHECK (status IN ('Pending', 'Approved', 'Rejected', 'Selesai', 'Dibatalkan')),
+
     CONSTRAINT chk_jam_appointment CHECK (jam_appointment LIKE '__:__')
+
 );
 
+
 -- =============================================
+
 -- TABLE: RATING_DOKTER (Review/Rating Dokter)
+
 -- =============================================
+
 
 CREATE TABLE RATING_DOKTER (
+
     id_rating VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_dokter VARCHAR2(20) NOT NULL,
+
     rating NUMBER(2,1) NOT NULL,
+
     komentar VARCHAR2(500),
+
     tanggal_rating DATE NOT NULL,
+
     CONSTRAINT fk_rating_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_rating_dokter FOREIGN KEY (id_dokter) REFERENCES DOKTER(id_dokter) ON DELETE CASCADE,
+
     CONSTRAINT chk_rating CHECK (rating >= 1 AND rating <= 5)
+
 );
 
+
 -- =============================================
+
 -- TABLE: BERKAS_MEDIS (Upload Dokumen Medis)
+
 -- =============================================
+
 
 CREATE TABLE BERKAS_MEDIS (
+
     id_berkas VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     nama_berkas VARCHAR2(200) NOT NULL,
+
     jenis_berkas VARCHAR2(50) NOT NULL,
+
     file_path VARCHAR2(255),
+
     tanggal_upload DATE NOT NULL,
+
     keterangan VARCHAR2(500),
+
     CONSTRAINT fk_berkas_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT chk_jenis_berkas CHECK (jenis_berkas IN ('Hasil Lab', 'Foto Ronsen', 'Resep', 'Catatan Medis', 'Lainnya'))
+
 );
 
+
 -- =============================================
+
 -- TABLE: TAGIHAN (Riwayat Tagihan)
+
 -- =============================================
+
 
 CREATE TABLE TAGIHAN (
+
     id_tagihan VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_resep VARCHAR2(20),
+
     id_rawat VARCHAR2(20),
+
     jenis_tagihan VARCHAR2(50) NOT NULL,
+
     total_tagihan NUMBER(12,2) NOT NULL,
+
     status_tagihan VARCHAR2(20) DEFAULT 'Belum Bayar',
+
     tanggal_tagihan DATE NOT NULL,
+
     tanggal_jatuh_tempo DATE,
+
     tanggal_dibayar DATE,
+
     CONSTRAINT fk_tagihan_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_tagihan_resep FOREIGN KEY (id_resep) REFERENCES RESEP(id_resep) ON DELETE CASCADE,
+
     CONSTRAINT fk_tagihan_rawat FOREIGN KEY (id_rawat) REFERENCES RAWAT_INAP(id_rawat) ON DELETE CASCADE,
+
     CONSTRAINT chk_jenis_tagihan CHECK (jenis_tagihan IN ('Konsultasi', 'Obat', 'Rawat Inap', 'Tindakan')),
+
     CONSTRAINT chk_status_tagihan CHECK (status_tagihan IN ('Belum Bayar', 'Terbayar', 'Lunas', 'Cicilan'))
+
 );
 
+
 -- =============================================
+
 -- TABLE: TRANSAKSI_PEMBAYARAN (Updated)
+
 -- =============================================
+
 
 CREATE TABLE TRANSAKSI_PEMBAYARAN (
+
     id_transaksi VARCHAR2(20) PRIMARY KEY,
+
     id_pasien VARCHAR2(20) NOT NULL,
+
     id_tagihan VARCHAR2(20),
+
     jumlah_bayar NUMBER(12,2) NOT NULL,
+
     metode_bayar VARCHAR2(20) NOT NULL,
+
     status_transaksi VARCHAR2(20) DEFAULT 'Sukses',
+
     nomor_referensi VARCHAR2(50),
+
     bukti_pembayaran VARCHAR2(255),
+
     tanggal_transaksi DATE NOT NULL,
+
     keterangan VARCHAR2(500),
+
     CONSTRAINT fk_trans_pasien FOREIGN KEY (id_pasien) REFERENCES PASIEN(id_pasien) ON DELETE CASCADE,
+
     CONSTRAINT fk_trans_tagihan FOREIGN KEY (id_tagihan) REFERENCES TAGIHAN(id_tagihan) ON DELETE CASCADE,
+
     CONSTRAINT chk_status_transaksi CHECK (status_transaksi IN ('Pending', 'Sukses', 'Gagal')),
+
     CONSTRAINT chk_metode_bayar CHECK (metode_bayar IN ('Tunai', 'Transfer', 'Kartu Kredit', 'Kartu Debit', 'BPJS')),
+
     CONSTRAINT chk_jumlah_bayar CHECK (jumlah_bayar > 0)
-);
+
+);" buatkan fullstack website mulai dari landing page yang profxional kasih halaman login 3 role ada dokter dan pasien dan admin, nah sementara dokter dan pasien dulu, buatin full code lengkap , aku  mau login nya tanpa erro tanpa bug fullstack dan aku  mau dokter dan pasien bisa "1. PASIEN - Capabilities Lengkap
+
+A. Data & Profil
+
+✅ Lihat data diri sendiri (nama, alamat, tanggal lahir, jenis kelamin, no telepon)
+
+✅ Edit profil sendiri (Update nama, alamat, no telepon, jenis kelamin)
+
+✅ Ubah password (Update password login)
+
+✅ Lihat status diri sendiri (via Function: fn_status_pasien)Status: "Rawat Inap (Sejak: DD-MM-YYYY)" atau "Jalan" atau "Jalan (Ada Appointment)"
+
+B. Appointment (Janji Temu)
+
+✅ Buat appointment baru (Pilih dokter, tanggal, jam, keluhan)
+
+✅ Lihat daftar appointment sendiri (filter status: Pending/Approved/Rejected/Selesai/Dibatalkan)
+
+✅ Batalkan appointment (Update status jadi "Dibatalkan")
+
+✅ Lihat riwayat appointment (Lihat appointment yang sudah selesai)
+
+✅ Lihat jadwal dokter sebelum buat appointment
+
+C. Rekam Medis & Diagnosa
+
+✅ Lihat rekam medis sendiri (Diagnosa, catatan dokter)
+
+✅ Lihat dokter yang menangani (Nama dokter, spesialis)
+
+✅ Lihat tanggal periksa (Tracking kapan terakhir periksa)
+
+D. Resep & Obat
+
+✅ Lihat resep yang diberikan dokter (List resep)
+
+✅ Lihat detail obat per resep (Nama obat, dosis, jumlah, aturan pakai)
+
+✅ Lihat harga obat (Untuk estimasi biaya)
+
+✅ Lihat stok obat tersedia (Tau obat ada atau tidak)
+
+✅ Lihat riwayat resep (Semua resep yang pernah diterima)
+
+E. Rawat Inap
+
+✅ Lihat riwayat rawat inap (Tanggal masuk, keluar, kamar)
+
+✅ Lihat status kamar (Kelas kamar, no kamar, status terisi/kosong)
+
+✅ Lihat tanggal masuk dan keluar (Durasi menginap)
+
+F. Tagihan & Pembayaran
+
+✅ Lihat daftar tagihan (Filter: Belum Bayar/Terbayar/Lunas/Cicilan)
+
+✅ Lihat detail tagihan (Jenis: Konsultasi/Obat/Rawat Inap/Tindakan, total, jatuh tempo)
+
+✅ Bayar tagihan (Insert transaksi pembayaran)
+
+✅ Pilih metode pembayaran (Tunai/Transfer/Kartu Kredit/Kartu Debit/BPJS)
+
+✅ Lihat riwayat pembayaran (Semua transaksi yang sudah dilakukan)
+
+✅ Lihat bukti pembayaran (Nomor referensi, bukti upload, tanggal bayar)
+
+✅ Lihat status pembayaran (Pending/Sukses/Gagal)
+
+✅ Print struk pembayaran (Untuk arsip)
+
+G. Rating & Review
+
+✅ Beri rating dokter (1-5 bintang)
+
+✅ Tulis review/komentar tentang dokter
+
+✅ Lihat rating dokter lain (Sebelum memilih dokter appointment)
+
+✅ Lihat rating rata-rata dokter
+
+H. Berkas Medis
+
+✅ Upload berkas medis (Hasil lab, foto ronsen, resep, catatan medis, dll)
+
+✅ Lihat daftar berkas yang sudah diupload
+
+✅ Download berkas untuk referensi pribadi
+
+✅ Lihat file_path dokumen untuk verifikasi
+
+I. Log & Aktivitas
+
+✅ Lihat log aktivitas pribadi (Kapan upload berkas, buat appointment, bayar tagihan)
+
+❌ Lihat log aktivitas user lain (Hanya log diri sendiri)
+
+J. Query/Report yang Bisa Diakses
+
+✅ Lihat status kamar (Dari VIEW: v_status_kamar) untuk referensi jika perlu rawat inap
+
+❌ Lihat laporan per dokter
+
+❌ Lihat laporan per departemen
+
+❌ Lihat laporan keuangan
+
+2. DOKTER - Capabilities Lengkap
+
+A. Data & Profil
+
+✅ Lihat data diri sendiri (Nama, spesialis, departemen, jadwal praktik, no telepon)
+
+✅ Edit profil sendiri (Update jadwal_praktik, no_telepon)
+
+✅ Ubah password
+
+✅ Lihat data dokter lain (Nama, spesialis, departemen)
+
+❌ Lihat password dokter lain
+
+B. Appointment Management
+
+✅ Lihat appointment yang ditujukan ke saya (Filter: Pending/Approved/Rejected/Selesai)
+
+✅ Approve appointment pasien (Update status jadi "Approved")
+
+✅ Reject appointment pasien (Update status jadi "Rejected")
+
+✅ Tandai appointment selesai (Update status jadi "Selesai")
+
+✅ Lihat keluhan pasien sebelum appointment
+
+✅ Lihat riwayat appointment dengan pasien tertentu
+
+C. Pasien Management
+
+✅ Lihat data pasien yang ditangani (Nama, alamat, tanggal lahir, no telepon, jenis kelamin)
+
+✅ Lihat status pasien (via Function: fn_status_pasien)Tahu pasien rawat inap atau jalan
+
+✅ Lihat riwayat periksa pasien tertentu
+
+❌ Lihat data pasien yang bukan pasien saya
+
+❌ Edit data pasien
+
+D. Rekam Medis
+
+✅ Buat rekam medis baru (Insert REKAM_MEDIS dengan diagnosa, catatan)
+
+✅ Edit rekam medis yang sudah dibuat (Update diagnosa, catatan)
+
+✅ Lihat rekam medis pasien yang ditangani
+
+✅ Lihat riwayat diagnosa pasien
+
+✅ Lihat catatan konsultasi sebelumnya
+
+E. Resep & Obat
+
+✅ Buat resep baru (Insert RESEP)
+
+✅ Tambahkan obat ke resep (Insert RESEP_OBAT)TRIGGER otomatis mengurangi stok obat saat resep dibuat ✨
+
+Validasi stok - Jika stok tidak cukup, sistem akan reject
+
+Log aktivitas - Setiap pengurangan stok tercatat
+
+✅ Lihat daftar obat tersedia (Nama, jenis, dosis, stok, harga)
+
+✅ Lihat riwayat resep yang saya buat
+
+✅ Lihat aturan pakai obat yang saya resepkan
+
+❌ Menambah/edit obat (Hanya admin yang bisa)
+
+F. Rawat Inap
+
+✅ Lihat data rawat inap pasien (Tanggal masuk, keluar, kamar)
+
+✅ Lihat status kamar (Kelas, no kamar, terisi/kosong)
+
+✅ Referensi kamar untuk rekomendasi pasien rawat inap
+
+❌ Manage kamar (Hanya admin)
+
+G. Berkas Medis
+
+✅ Lihat berkas medis pasien (Upload dari pasien)
+
+✅ Lihat file_path dokumen
+
+✅ Download berkas untuk referensi diagnosa
+
+❌ Hapus berkas pasien
+
+H. Rating & Review
+
+✅ Lihat rating saya dari pasien (Rating 1-5 bintang)
+
+✅ Lihat komentar dari pasien (Review/feedback)
+
+✅ Lihat rating rata-rata saya
+
+❌ Hapus rating pasien
+
+I. Log & Aktivitas
+
+✅ Lihat log aktivitas pribadi (Update appointment, buat resep, dll)
+
+❌ Lihat log aktivitas dokter lain
+
+J. Report/Laporan
+
+✅ Lihat laporan pasien saya (Via VIEW: v_laporan_pasien_per_dokter)Jumlah pasien yang ditangani
+
+Total rekam medis
+
+Total resep yang diberikan
+
+Rating rata-rata dari pasien
+
+✅ Lihat laporan per departemen (Via VIEW: v_laporan_pasien_per_departemen)Tapi hanya departemen saya sendiri
+
+❌ Lihat laporan keuangan
+
+❌ Lihat laporan dokter lain
+
+K. Trigger & Automation
+
+✅ Trigger kontrolStok - Otomatis validasi dan kurangi stok saat buat resep
+
+✅ Trigger updateAppointment - Otomatis log setiap kali status appointment berubah
+
+✅ Function statusPasien - Tahu status pasien realtime" ini aku pakai oracle , aku udah ada const db = require('../config/db'); dan nanti pakai ini { outFormat: db.oracledb.OUT_FORMAT_OBJECT } contoh saja kaya ini "xports.getAllDoctors = async (req, res) => {
+
+  let connection;
+
+  try {
+
+    connection = await db.getConnection();
+
+    const result = await connection.execute(
+
+      `SELECT id_dokter AS "ID_DOKTER", 
+
+              nama AS "NAMA", 
+
+              spesialis AS "SPESIALIS", 
+
+              departemen AS "DEPARTEMEN"
+
+       FROM DOKTER 
+
+       ORDER BY nama`,
+
+      [],
+
+      { outFormat: db.oracledb.OUT_FORMAT_OBJECT }
+
+    );
+
+    
+
+    res.status(200).json({
+
+      success: true,
+
+      data: result.rows
+
+    });
+
+  } catch (error) {
+
+    console.error('Error fetching doctors:', error);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: 'Gagal mengambil data dokter',
+
+      error: error.message
+
+    });
+
+  } finally {
+
+    if (connection) {
+
+      try {
+
+        await connection.close();
+
+      } catch (err) {
+
+        console.error('Error closing connection:', err);
+
+      }
+
+    }
+
+  }
+
+};" buatkan controller dan routes lengkap langsungg bisa dipakai apinya lengkap detail seperti yang kuminta, dan juga buatin frotensnya yang bisa langsung dipakai dan udah bisa dikonekin ke backendnya, ini namanya SIMRS ya, harus frotnend harug bagus, dan profesional, harus detail lengkap, no bug dan no error, bisa nd abuatin 

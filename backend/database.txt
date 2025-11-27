@@ -321,7 +321,8 @@ END;
 
 CREATE OR REPLACE VIEW vw_laporan_pasien_per_dokter AS
 SELECT 
-    d.id_dokter,
+    d.id_dokter,cd frontend
+    
     d.nama AS nama_dokter,
     d.spesialis,
     d.departemen,

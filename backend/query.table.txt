@@ -121,7 +121,56 @@ CREATE TABLE TRANSAKSI_PEMBAYARAN (
     CONSTRAINT chk_total_bayar CHECK (total_bayar >= 0),
     CONSTRAINT chk_metode_bayar CHECK (metode_bayar IN ('Tunai', 'Transfer', 'Kartu Kredit', 'Kartu Debit', 'BPJS'))
 );
+-- 1. Buat tabel PENGGUNA dulu
+CREATE TABLE PENGGUNA (
+    id_pengguna VARCHAR2(20) PRIMARY KEY,
+    username VARCHAR2(50) NOT NULL UNIQUE,
+    password VARCHAR2(255) NOT NULL,
+    email VARCHAR2(100) NOT NULL UNIQUE,
+    role VARCHAR2(20) NOT NULL,
+    status VARCHAR2(20) DEFAULT 'Aktif',
+    tanggal_daftar DATE NOT NULL,
+    CONSTRAINT chk_role CHECK (role IN ('Pasien', 'Dokter', 'Admin')),
+    CONSTRAINT chk_status CHECK (status IN ('Aktif', 'Nonaktif', 'Suspend'))
+);
 
+-- 2. Tambahkan kolom id_pengguna ke PASIEN (nullable dulu)
+ALTER TABLE PASIEN ADD (id_pengguna VARCHAR2(20));
+
+-- 3. Tambahkan kolom id_pengguna ke DOKTER (nullable dulu)
+ALTER TABLE DOKTER ADD (id_pengguna VARCHAR2(20));
+
+-- 4. Buat tabel ADMIN
+CREATE TABLE ADMIN (
+    id_admin VARCHAR2(20) PRIMARY KEY,
+    id_pengguna VARCHAR2(20) NOT NULL,
+    nama VARCHAR2(100) NOT NULL,
+    departemen VARCHAR2(50),
+    CONSTRAINT fk_admin_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE,
+    CONSTRAINT chk_admin_nama CHECK (LENGTH(nama) >= 3)
+);
+
+-- 5. Buat tabel LOG_AKTIVITAS
+CREATE TABLE LOG_AKTIVITAS (
+    id_log VARCHAR2(20) PRIMARY KEY,
+    id_pengguna VARCHAR2(20) NOT NULL,
+    tipe_aktivitas VARCHAR2(100) NOT NULL,
+    deskripsi VARCHAR2(500),
+    tanggal_aktivitas DATE NOT NULL,
+    CONSTRAINT fk_log_pengguna FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE
+);
+
+-- 6. Tambahkan foreign key constraint ke PASIEN
+ALTER TABLE PASIEN ADD CONSTRAINT fk_pasien_pengguna 
+  FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE;
+
+-- 7. Tambahkan foreign key constraint ke DOKTER
+ALTER TABLE DOKTER ADD CONSTRAINT fk_dokter_pengguna 
+  FOREIGN KEY (id_pengguna) REFERENCES PENGGUNA(id_pengguna) ON DELETE CASCADE;
+
+-- 8. Ubah kolom id_pengguna menjadi NOT NULL (opsional, jika semua data sudah diisi)
+-- ALTER TABLE PASIEN MODIFY (id_pengguna VARCHAR2(20) NOT NULL);
+-- ALTER TABLE DOKTER MODIFY (id_pengguna VARCHAR2(20) NOT NULL);
 
 -- ============================================
 -- PROCEDURE 1: Untuk LIHAT tagihan saja (tidak insert)
