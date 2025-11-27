@@ -1,6 +1,7 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
+// API URL TETAP LOCALHOST (Karena Laptop akses Backend via jalur lokal)
 const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -59,6 +60,12 @@ export const patientAPI = {
   payBill: (data) => api.post('/patient/payments', data),
   getPaymentHistory: () => api.get('/patient/payments/history'),
   rateDoctor: (data) => api.post('/patient/ratings', data),
+  
+  // --- WAJIB ADA INI (Untuk Laptop nanya status pembayaran) ---
+  checkStatus: (id) => api.get(`/patient/bills/${id}/status`),
+  // -----------------------------------------------------------
+  getBillDetails: (id) => api.get(`/patient/bills/${id}/details`),
+
   getDoctorRatings: (id) => api.get(`/patient/doctors/${id}/ratings`)
 };
 
@@ -68,7 +75,7 @@ export const doctorAPI = {
   updateProfile: (data) => api.put('/doctor/profile', data),
   getAppointments: (status) => api.get('/doctor/appointments', { params: { status } }),
   updateAppointmentStatus: (id, status) => api.put(`/doctor/appointments/${id}/status`, { status }),
-  getPatients: () => api.get('/doctor/patients'),
+  getPatients: (status) => api.get('/doctor/patients', { params: { status } }),
   getPatientMedicalRecords: (id) => api.get(`/doctor/patients/${id}/medical-records`),
   createMedicalRecord: (data) => api.post('/doctor/medical-records', data),
   updateMedicalRecord: (id, data) => api.put(`/doctor/medical-records/${id}`, data),

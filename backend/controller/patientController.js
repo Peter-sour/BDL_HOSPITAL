@@ -182,58 +182,56 @@ exports.createAppointment = async (req, res) => {
 };
 
 // Get My Appointments
+// backend/controllers/patientController.js
+
+// ...
+
+// Get Appointments (UPDATE QUERY AGAR ID DOKTER TERBACA)
 exports.getMyAppointments = async (req, res) => {
   let connection;
   try {
     const id_pasien = req.user.detail_id;
     const { status } = req.query;
 
-    let query = `SELECT a.id_appointment AS "id_appointment",
-                        a.tanggal_appointment AS "tanggal_appointment",
-                        a.jam_appointment AS "jam_appointment",
-                        a.keluhan AS "keluhan",
-                        a.status AS "status",
-                        a.tanggal_buat AS "tanggal_buat",
-                        d.nama AS "nama_dokter",
-                        d.spesialis AS "spesialis",
-                        d.departemen AS "departemen"
-                 FROM APPOINTMENT a
-                 JOIN DOKTER d ON a.id_dokter = d.id_dokter
-                 WHERE a.id_pasien = :id_pasien`;
+    // KITA UBAH QUERYNYA BIAR LEBIH SPESIFIK (JANGAN PAKAI a.*)
+    let query = `SELECT 
+                    a.id_appointment AS "id_appointment",
+                    a.id_dokter AS "id_dokter",  -- <--- INI PENTING (HURUF KECIL)
+                    a.tanggal_appointment AS "tanggal_appointment",
+                    a.jam_appointment AS "jam_appointment",
+                    a.keluhan AS "keluhan",
+                    a.status AS "status",
+                    a.is_rated AS "is_rated",
+                    d.nama AS "nama_dokter",
+                    d.spesialis AS "spesialis",
+                    d.departemen AS "departemen"
+                 FROM APPOINTMENT a 
+                 JOIN DOKTER d ON a.id_dokter = d.id_dokter 
+                 WHERE a.id_pasien = :id`;
 
     const params = [id_pasien];
 
-    if (status) {
-      query += ` AND a.status = :status`;
-      params.push(status);
+    if (status) { 
+      query += ` AND a.status = :s`; 
+      params.push(status); 
     }
 
-    query += ` ORDER BY a.tanggal_appointment DESC, a.jam_appointment DESC`;
-
+    query += ` ORDER BY a.tanggal_appointment DESC`;
+    
     connection = await getConnection();
     const result = await connection.execute(query, params, { outFormat: oracledb.OUT_FORMAT_OBJECT });
 
-    res.status(200).json({
-      success: true,
-      data: result.rows
-    });
-  } catch (error) {
-    console.error('Error get appointments:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil data appointment',
-      error: error.message
-    });
-  } finally {
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error('Error closing connection:', err);
-      }
-    }
+    res.status(200).json({ success: true, data: result.rows });
+
+  } catch (error) { 
+    console.error("Get Appointment Error:", error);
+    res.status(500).json({ success: false, message: error.message }); 
+  } finally { 
+    if (connection) await connection.close(); 
   }
 };
+
+// ...
 
 // Cancel Appointment
 exports.cancelAppointment = async (req, res) => {
@@ -537,6 +535,7 @@ exports.getPaymentHistory = async (req, res) => {
     connection = await getConnection();
     const result = await connection.execute(
       `SELECT tp.id_transaksi AS "id_transaksi",
+              tp.id_tagihan AS "id_tagihan",
               tp.jumlah_bayar AS "jumlah_bayar",
               tp.metode_bayar AS "metode_bayar",
               tp.status_transaksi AS "status_transaksi",
@@ -574,50 +573,48 @@ exports.getPaymentHistory = async (req, res) => {
 };
 
 // Rate Doctor
+// ...
 exports.rateDoctor = async (req, res) => {
   let connection;
   try {
     const id_pasien = req.user.detail_id;
-    const { id_dokter, rating, komentar } = req.body;
+    // Tambahkan id_appointment di body request
+    const { id_dokter, id_appointment, rating, komentar } = req.body; 
 
-    if (!id_dokter || !rating) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID dokter dan rating harus diisi'
-      });
+    if (!id_dokter || !rating || !id_appointment) {
+      return res.status(400).json({ success: false, message: 'Data tidak lengkap' });
     }
 
     const id_rating = 'RTG' + Date.now();
-
     connection = await getConnection();
+
+    // 1. Insert Rating ke tabel RATING_DOKTER
     await connection.execute(
       `INSERT INTO RATING_DOKTER (id_rating, id_pasien, id_dokter, rating, komentar, tanggal_rating)
-       VALUES (:id_rating, :id_pasien, :id_dokter, :rating, :komentar, SYSDATE)`,
+       VALUES (:id, :p, :d, :r, :k, SYSDATE)`,
       [id_rating, id_pasien, id_dokter, rating, komentar || null],
-      { autoCommit: true }
+      { autoCommit: false }
     );
 
-    res.status(201).json({
-      success: true,
-      message: 'Rating berhasil diberikan'
-    });
+    // 2. UPDATE status is_rated di tabel APPOINTMENT jadi 1
+    await connection.execute(
+      `UPDATE APPOINTMENT SET is_rated = 1 WHERE id_appointment = :id`,
+      [id_appointment],
+      { autoCommit: false }
+    );
+
+    await connection.commit(); // Simpan keduanya
+
+    res.status(201).json({ success: true, message: 'Rating berhasil diberikan' });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error rate doctor:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal memberikan rating',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   } finally {
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error('Error closing connection:', err);
-      }
-    }
+    if (connection) await connection.close();
   }
 };
+// ...
 
 // Get Doctor Ratings
 exports.getDoctorRatings = async (req, res) => {
@@ -671,5 +668,176 @@ exports.getDoctorRatings = async (req, res) => {
         console.error('Error closing connection:', err);
       }
     }
+  }
+};
+// =================================================================
+// 🔥 FITUR QRIS & POLLING (Perbaikan Utama)
+// =================================================================
+
+// 1. Endpoint Check Status (Dipanggil Laptop tiap 2 detik)
+exports.checkBillStatus = async (req, res) => {
+  let connection;
+  try {
+    const { id_tagihan } = req.params;
+    connection = await getConnection();
+    
+    const result = await connection.execute(
+      `SELECT status_tagihan FROM TAGIHAN WHERE id_tagihan = :id`,
+      [id_tagihan],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT } 
+    );
+
+    if(result.rows.length > 0) {
+      // FIX: Pakai Key Huruf Besar dari Oracle
+      const status = result.rows[0].STATUS_TAGIHAN; 
+      res.json({ success: true, status: status });
+    } else {
+      res.json({ success: false, message: 'Tagihan tidak ditemukan' });
+    }
+  } catch (err) {
+    console.error("Error check status:", err);
+    res.status(500).json({ success: false });
+  } finally {
+    if (connection) await connection.close();
+  }
+};
+
+// 2. Endpoint Konfirmasi QR (Dipanggil HP saat Scan)
+// backend/controllers/patientController.js
+
+exports.confirmPaymentQR = async (req, res) => {
+  let connection;
+  try {
+    const { id_tagihan } = req.params;
+    connection = await getConnection();
+
+    // 1. Update Status (Jangan Commit dulu)
+    await connection.execute(
+      `UPDATE TAGIHAN SET status_tagihan = 'Lunas', tanggal_dibayar = SYSDATE 
+       WHERE id_tagihan = :id`,
+      [id_tagihan],
+      { autoCommit: false }
+    );
+
+    // 2. Insert Riwayat (PERBAIKAN: MENAMBAHKAN ID_PASIEN)
+    const id_trx = 'QR-' + Date.now();
+    
+    await connection.execute(
+      `INSERT INTO TRANSAKSI_PEMBAYARAN (
+         id_transaksi, 
+         id_pasien,       -- 1. KITA TAMBAH KOLOM INI
+         id_tagihan, 
+         jumlah_bayar, 
+         metode_bayar, 
+         status_transaksi, 
+         tanggal_transaksi
+       )
+       SELECT 
+         :trx, 
+         id_pasien,       -- 2. AMBIL DATANYA DARI TABEL TAGIHAN
+         id_tagihan, 
+         total_tagihan, 
+         'QRIS', 
+         'Sukses', 
+         SYSDATE
+       FROM TAGIHAN 
+       WHERE id_tagihan = :tag`,
+       { trx: id_trx, tag: id_tagihan },
+       { autoCommit: false }
+    );
+
+    // 3. Simpan Perubahan
+    await connection.commit();
+
+    // Tampilan HP
+    res.send(`
+      <div style="font-family:sans-serif;text-align:center;padding-top:100px;">
+        <h1 style="color:#16a34a;font-size:60px;margin-bottom:10px;">✔</h1>
+        <h2 style="color:#15803d;margin:0;">Pembayaran Berhasil!</h2>
+        <p style="color:#64748b;">Terima kasih. Silakan cek layar komputer Anda.</p>
+      </div>
+    `);
+
+  } catch (error) {
+    if (connection) {
+      try { await connection.rollback(); } catch (e) { console.error(e); }
+    }
+    
+    console.error("QR Error:", error); // Cek terminal untuk lihat detail error
+    
+    // Tampilkan pesan error detail di HP biar kita tau kolom apa yang null
+    res.send(`
+      <div style="font-family:sans-serif;text-align:center;padding-top:50px;">
+        <h1 style="color:red;font-size:60px;">X</h1>
+        <h3>Gagal Memproses!</h3>
+        <p>Error Database: ${error.message}</p>
+      </div>
+    `);
+  } finally {
+    if (connection) await connection.close();
+  }
+};
+
+// --- TAMBAHAN BARU: Get Detail Tagihan ---
+exports.getBillDetails = async (req, res) => {
+  let connection;
+  try {
+    const { id_tagihan } = req.params;
+    connection = await getConnection();
+
+    // 1. Ambil Info Tagihan & ID Referensinya
+    const billRes = await connection.execute(
+      `SELECT jenis_tagihan, id_referensi FROM TAGIHAN WHERE id_tagihan = :id`,
+      [id_tagihan], 
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+
+    if (billRes.rows.length === 0) return res.json({ success: false, data: [] });
+    
+    const bill = billRes.rows[0];
+    const refId = bill.ID_REFERENSI; // Ini kuncinya!
+    
+    let details = [];
+
+    // 2. Jika ID Referensi Kosong (Data lama sebelum update DB)
+    if (!refId) {
+        return res.json({ success: true, data: [{ item: 'Detail tidak tersedia (Data Lama)', qty: '-', harga: 0 }] });
+    }
+
+    // 3. Ambil Detail Berdasarkan ID Referensi yang Pasti Unik
+    if (bill.JENIS_TAGIHAN === 'Obat') {
+      // Cari di tabel RESEP_OBAT berdasarkan ID_RESEP (refId)
+      const obatRes = await connection.execute(
+        `SELECT o.nama_obat AS "item", ro.jumlah AS "qty", o.harga AS "harga"
+         FROM RESEP_OBAT ro
+         JOIN OBAT o ON ro.id_obat = o.id_obat
+         WHERE ro.id_resep = :id_resep`, 
+        [refId], // Pakai ID Resep yang spesifik
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      details = obatRes.rows;
+
+    } else if (bill.JENIS_TAGIHAN === 'Konsultasi') {
+      // Cari di tabel REKAM_MEDIS berdasarkan ID_REKAM (refId)
+      const dokRes = await connection.execute(
+        `SELECT 'Jasa Dokter ' || d.nama || ' (' || d.spesialis || ')' AS "item", 
+                1 AS "qty", 
+                150000 AS "harga"
+         FROM REKAM_MEDIS rm
+         JOIN DOKTER d ON rm.id_dokter = d.id_dokter
+         WHERE rm.id_rekam = :id_rekam`,
+        [refId], // Pakai ID Rekam yang spesifik
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      details = dokRes.rows;
+    }
+
+    res.json({ success: true, data: details });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Gagal ambil detail' });
+  } finally {
+    if (connection) await connection.close();
   }
 };

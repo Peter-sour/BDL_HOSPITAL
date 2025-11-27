@@ -205,23 +205,31 @@ exports.getMyPatients = async (req, res) => {
   let connection;
   try {
     const id_dokter = req.user.detail_id;
+    const { status } = req.query; // Ambil parameter status (misal: 'Approved')
 
     connection = await db.getConnection();
-    const result = await connection.execute(
-      `SELECT DISTINCT p.id_pasien AS "id_pasien",
-              p.nama AS "nama",
-              p.tanggal_lahir AS "tanggal_lahir",
-              p.alamat AS "alamat",
-              p.no_telepon AS "no_telepon",
-              p.jenis_kelamin AS "jenis_kelamin"
-       FROM PASIEN p
-       WHERE p.id_pasien IN (
-         SELECT DISTINCT id_pasien FROM APPOINTMENT WHERE id_dokter = :id_dokter
-       )
-       ORDER BY p.nama`,
-      [id_dokter],
-      { outFormat: db.oracledb.OUT_FORMAT_OBJECT }
-    );
+    
+    let query = `SELECT DISTINCT p.id_pasien AS "id_pasien",
+                        p.nama AS "nama",
+                        p.tanggal_lahir AS "tanggal_lahir",
+                        p.alamat AS "alamat",
+                        p.no_telepon AS "no_telepon",
+                        p.jenis_kelamin AS "jenis_kelamin"
+                 FROM PASIEN p
+                 JOIN APPOINTMENT a ON p.id_pasien = a.id_pasien
+                 WHERE a.id_dokter = :id_dokter`;
+    
+    const params = [id_dokter];
+
+    // Jika ada request filter status (misal: hanya yang Approved)
+    if (status) {
+      query += ` AND a.status = :status`;
+      params.push(status);
+    }
+
+    query += ` ORDER BY p.nama`;
+
+    const result = await connection.execute(query, params, { outFormat: db.oracledb.OUT_FORMAT_OBJECT });
 
     res.status(200).json({
       success: true,
@@ -229,23 +237,13 @@ exports.getMyPatients = async (req, res) => {
     });
   } catch (error) {
     console.error('Error get patients:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil data pasien',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   } finally {
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error('Error closing connection:', err);
-      }
-    }
+    if (connection) { try { await connection.close(); } catch (e) {} }
   }
 };
 
-// Create Medical Record
+// 2. Create Medical Record (UPDATE: Auto-Finish Appointment)
 exports.createMedicalRecord = async (req, res) => {
   let connection;
   try {
@@ -253,42 +251,68 @@ exports.createMedicalRecord = async (req, res) => {
     const { id_pasien, diagnosa, catatan } = req.body;
 
     if (!id_pasien || !diagnosa) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID pasien dan diagnosa harus diisi'
-      });
+      return res.status(400).json({ success: false, message: 'ID pasien dan diagnosa harus diisi' });
     }
 
     const id_rekam = 'RM' + Date.now();
+    const id_tagihan = 'TAG-' + Date.now();
+    const biaya_konsultasi = 150000;
 
     connection = await db.getConnection();
+
+    // A. Insert Rekam Medis
     await connection.execute(
       `INSERT INTO REKAM_MEDIS (id_rekam, id_pasien, id_dokter, diagnosa, catatan)
        VALUES (:id_rekam, :id_pasien, :id_dokter, :diagnosa, :catatan)`,
       [id_rekam, id_pasien, id_dokter, diagnosa, catatan || null],
-      { autoCommit: true }
+      { autoCommit: false }
     );
+
+    // B. Insert Tagihan Konsultasi
+    await connection.execute(
+      `INSERT INTO TAGIHAN (
+         id_tagihan, id_pasien, jenis_tagihan, total_tagihan, 
+         status_tagihan, tanggal_tagihan, tanggal_jatuh_tempo, 
+         id_referensi  -- <--- KOLOM BARU
+       ) VALUES (
+         :id_tagihan, :id_pasien, 'Konsultasi', :total, 
+         'Belum Bayar', SYSDATE, SYSDATE + 3,
+         :id_rekam     -- <--- DISIMPAN DISINI
+       )`,
+      {
+        id_tagihan: id_tagihan,
+        id_pasien: id_pasien,
+        total: biaya_konsultasi,
+        id_rekam: id_rekam // Masukkan ID Rekam Medis
+      },
+      { autoCommit: false }
+    );
+
+    // C. UPDATE STATUS APPOINTMENT JADI 'SELESAI' (Otomatis Hilang dari Dropdown)
+    // Cari appointment yang statusnya 'Approved' milik pasien & dokter ini, lalu ubah jadi 'Selesai'
+    await connection.execute(
+      `UPDATE APPOINTMENT 
+       SET status = 'Selesai'
+       WHERE id_pasien = :id_pasien 
+       AND id_dokter = :id_dokter 
+       AND status = 'Approved'`,
+      [id_pasien, id_dokter],
+      { autoCommit: false }
+    );
+
+    await connection.commit();
 
     res.status(201).json({
       success: true,
-      message: 'Rekam medis berhasil dibuat',
+      message: 'Pemeriksaan selesai, data tersimpan, dan antrian diperbarui.',
       data: { id_rekam }
     });
   } catch (error) {
+    if (connection) await connection.rollback();
     console.error('Error create medical record:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal membuat rekam medis',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   } finally {
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error('Error closing connection:', err);
-      }
-    }
+    if (connection) await connection.close();
   }
 };
 
@@ -423,25 +447,31 @@ exports.getMedicines = async (req, res) => {
   }
 };
 
-// Create Prescription
+// backend/controllers/doctorController.js
+// backend/controllers/doctorController.js
+
 exports.createPrescription = async (req, res) => {
   let connection;
   try {
     const id_dokter = req.user.detail_id;
     const { id_pasien, catatan, obat_list } = req.body;
 
+    // 1. Validasi Input
     if (!id_pasien || !obat_list || obat_list.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'ID pasien dan daftar obat harus diisi'
+      return res.status(400).json({ 
+        success: false, 
+        message: 'ID pasien dan daftar obat harus diisi' 
       });
     }
 
+    // 2. Generate ID (Format Pendek agar muat di VARCHAR2(20))
     const id_resep = 'RSP' + Date.now();
+    const id_tagihan = 'INV-' + Date.now(); // Contoh: INV-173272... (Total 17 digit, Aman)
+    let total_harga_obat = 0;
 
     connection = await db.getConnection();
 
-    // Insert resep
+    // 3. Insert Header Resep
     await connection.execute(
       `INSERT INTO RESEP (id_resep, tanggal_resep, catatan, id_dokter, id_pasien)
        VALUES (:id_resep, SYSDATE, :catatan, :id_dokter, :id_pasien)`,
@@ -449,73 +479,93 @@ exports.createPrescription = async (req, res) => {
       { autoCommit: false }
     );
 
-    // Insert detail obat
+    // 4. Loop Obat (Simpan Detail & Hitung Harga)
     for (let i = 0; i < obat_list.length; i++) {
       const obat = obat_list[i];
       const id_resep_obat = 'RO' + Date.now() + i;
 
-      // Cek stok
-      const stokResult = await connection.execute(
-        `SELECT stok AS "stok" FROM OBAT WHERE id_obat = :id_obat`,
+      // Ambil Harga Obat untuk Billing (Stok dicek oleh Trigger)
+      const infoObat = await connection.execute(
+        `SELECT harga FROM OBAT WHERE id_obat = :id_obat`,
         [obat.id_obat],
         { outFormat: db.oracledb.OUT_FORMAT_OBJECT }
       );
 
-      if (stokResult.rows.length === 0 || stokResult.rows[0].stok < obat.jumlah) {
-        await connection.rollback();
-        return res.status(400).json({
-          success: false,
-          message: `Stok obat ${obat.id_obat} tidak cukup`
-        });
+      if (infoObat.rows.length === 0) {
+        throw new Error(`Obat dengan ID ${obat.id_obat} tidak ditemukan`);
       }
 
+      // Hitung Total Biaya
+      const harga_satuan = infoObat.rows[0].HARGA;
+      total_harga_obat += harga_satuan * obat.jumlah;
+
+      // Insert Detail Resep
+      // (PENTING: Trigger 'trg_kurangi_stok_obat' akan jalan di sini buat kurangi stok)
       await connection.execute(
         `INSERT INTO RESEP_OBAT (id_resep_obat, id_resep, id_obat, jumlah, aturan_pakai)
          VALUES (:id_resep_obat, :id_resep, :id_obat, :jumlah, :aturan_pakai)`,
         [id_resep_obat, id_resep, obat.id_obat, obat.jumlah, obat.aturan_pakai],
         { autoCommit: false }
       );
+    }
 
-      // Kurangi stok
+    // 5. Insert Tagihan (Auto Billing)
+    if (total_harga_obat > 0) {
       await connection.execute(
-        `UPDATE OBAT SET stok = stok - :jumlah WHERE id_obat = :id_obat`,
-        [obat.jumlah, obat.id_obat],
+        `INSERT INTO TAGIHAN (
+           id_tagihan, id_pasien, jenis_tagihan, total_tagihan, 
+           status_tagihan, tanggal_tagihan, tanggal_jatuh_tempo,
+           id_referensi -- <--- KOLOM BARU
+         ) VALUES (
+           :id_tagihan, :id_pasien, 'Obat', :total, 
+           'Belum Bayar', SYSDATE, SYSDATE + 3,
+           :id_resep    -- <--- DISIMPAN DISINI
+         )`,
+        {
+          id_tagihan: id_tagihan,
+          id_pasien: id_pasien,
+          total: total_harga_obat,
+          id_resep: id_resep // Masukkan ID Resep
+        },
         { autoCommit: false }
       );
     }
 
+    // 6. Commit Transaksi (Simpan Semuanya)
     await connection.commit();
 
     res.status(201).json({
       success: true,
-      message: 'Resep berhasil dibuat',
-      data: { id_resep }
+      message: 'Resep berhasil dibuat & Tagihan diterbitkan',
+      data: { id_resep, id_tagihan, total_biaya: total_harga_obat }
     });
+
   } catch (error) {
+    // Jika ada error, batalkan semua perubahan
     if (connection) {
-      try {
-        await connection.rollback();
-      } catch (rollbackError) {
-        console.error('Error rollback:', rollbackError);
-      }
+      try { await connection.rollback(); } catch (e) { console.error(e); }
     }
+
+    // Tangkap Pesan Error dari Trigger Oracle (Stok Habis)
+    let msg = error.message;
+    if (msg.includes('ORA-20003')) {
+      msg = 'Gagal: Stok obat di gudang tidak mencukupi!';
+    } else if (msg.includes('ORA-20004')) {
+      msg = 'Gagal: Data obat tidak ditemukan!';
+    }
+
     console.error('Error create prescription:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal membuat resep',
-      error: error.message
+    res.status(500).json({ 
+      success: false, 
+      message: msg, 
+      error: error.message 
     });
   } finally {
     if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error('Error closing connection:', err);
-      }
+      try { await connection.close(); } catch (e) { console.error(e); }
     }
   }
 };
-
 // Get My Prescriptions
 exports.getMyPrescriptions = async (req, res) => {
   let connection;

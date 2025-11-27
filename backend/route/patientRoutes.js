@@ -4,6 +4,9 @@ const router = express.Router();
 const patientController = require('../controller/patientController');
 const { verifyToken, isPatient } = require('../middleware/authMiddleware');
 
+router.get('/payment/qr-confirm/:id_tagihan', patientController.confirmPaymentQR);
+
+
 // Semua route memerlukan autentikasi dan harus pasien
 router.use(verifyToken, isPatient);
 
@@ -34,5 +37,9 @@ router.get('/payments/history', patientController.getPaymentHistory);
 
 // Ratings
 router.post('/ratings', patientController.rateDoctor);
+
+router.get('/bills/:id_tagihan/status', patientController.checkBillStatus);
+
+router.get('/bills/:id_tagihan/details', patientController.getBillDetails);
 
 module.exports = router;
