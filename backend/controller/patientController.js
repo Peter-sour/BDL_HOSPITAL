@@ -841,3 +841,61 @@ exports.getBillDetails = async (req, res) => {
     if (connection) await connection.close();
   }
 };
+// Request Rawat Inap (Baru)
+exports.requestRawatInap = async (req, res) => {
+  let connection;
+  try {
+    const id_pasien = req.user.detail_id;
+    const { id_kamar, keluhan, id_dokter_referensi } = req.body;
+    
+    if (!id_kamar || !keluhan) {
+      return res.status(400).json({ success: false, message: 'ID Kamar dan Keluhan wajib diisi' });
+    }
+
+    // ID Rawat Inap
+    const id_rawat = 'RI' + Date.now(); 
+
+    connection = await getConnection();
+    
+    // Simpan permintaan dengan status 'Pending'
+    await connection.execute(
+      `INSERT INTO RAWAT_INAP (id_rawat, id_pasien, tanggal_masuk, id_kamar, keluhan, status, id_dokter)
+       VALUES (:id_ri, :id_p, SYSDATE, :id_kamar, :keluhan, 'Pending', :id_dokter_ref)`,
+      [id_rawat, id_pasien, id_kamar, keluhan, id_dokter_referensi || null],
+      { autoCommit: true }
+    );
+    res.json({ success: true, message: 'Permintaan Rawat Inap berhasil dikirim. Menunggu persetujuan Admin.' });
+  } catch (error) {
+    console.error('Error request rawat inap:', error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally { if (connection) await connection.close(); }
+};
+exports.getAvailableRooms = async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Query ini akan mengambil kamar yang TIDAK MEMILIKI record Rawat Inap aktif
+        const result = await connection.execute(
+            `SELECT k.id_kamar AS "id_kamar", 
+                    k.nama_kamar AS "nama_kamar", 
+                    k.kelas_kamar AS "kelas_kamar"
+             FROM KAMAR k
+             WHERE NOT EXISTS (
+                 SELECT 1 
+                 FROM RAWAT_INAP ri 
+                 WHERE ri.id_kamar = k.id_kamar 
+                   AND ri.tanggal_keluar IS NULL
+             )
+             ORDER BY k.kelas_kamar, k.nama_kamar`,
+            [],
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        res.json({ success: true, data: result.rows });
+    } catch (error) {
+        console.error("Error fetching available rooms (NOT EXISTS):", error);
+        res.status(500).json({ message: error.message });
+    } finally {
+        if (connection) await connection.close();
+    }
+};

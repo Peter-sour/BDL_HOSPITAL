@@ -743,3 +743,39 @@ exports.getStatistics = async (req, res) => {
     }
   }
 };
+exports.getMyInpatients = async (req, res) => {
+  let connection;
+  try {
+    const id_dokter = req.user.detail_id; 
+
+    // FIX: getConnection() sekarang bisa dipanggil
+    connection = await db.getConnection(); 
+
+    const result = await connection.execute(
+      `SELECT ri.id_rawat AS "id_rawat",
+              ri.tanggal_masuk AS "tanggal_masuk",
+              ri.id_kamar AS "id_kamar",
+              p.nama AS "nama_pasien",
+              p.no_telepon AS "no_telepon",
+              k.nama_kamar AS "nama_kamar",
+              k.kelas_kamar AS "kelas_kamar"
+       FROM RAWAT_INAP ri
+       JOIN PASIEN p ON ri.id_pasien = p.id_pasien
+       JOIN KAMAR k ON ri.id_kamar = k.id_kamar
+       WHERE ri.id_dokter = :id_dokter 
+       AND ri.status = 'Inap'         
+       AND ri.tanggal_keluar IS NULL  
+       ORDER BY ri.tanggal_masuk ASC`,
+      [id_dokter],
+      { outFormat: db.oracledb.OUT_FORMAT_OBJECT }
+    );
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Error fetching inpatients:', error);
+    res.status(500).json({ message: 'Gagal mengambil data pasien rawat inap.' });
+  } finally {
+    if (connection) {
+      try { await connection.close(); } catch (err) { console.error(err); }
+    }
+  }
+};

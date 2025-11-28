@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DoctorLayout from '../../components/DoctorLayout';
 import { doctorAPI } from '../../services/api';
+import { User, Bed } from 'lucide-react'; // Import ikon Bed
 
 const DoctorDashboard = ({ user }) => {
   const [stats, setStats] = useState({ total_pasien: 0, total_appointment: 0, total_rekam: 0, total_resep: 0, avg_rating: 0 });
   const [todayAppointments, setTodayAppointments] = useState([]);
+  const [activeInpatients, setActiveInpatients] = useState([]); // <--- STATE BARU UNTUK RI
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,29 +15,23 @@ const DoctorDashboard = ({ user }) => {
       try {
         setLoading(true);
         
-        // 1. Ambil Statistik
+        // Fetch 1: Statistik
         const statsRes = await doctorAPI.getStatistics();
         setStats(statsRes.data.data);
 
-        // 2. Ambil Appointment yang sudah disetujui (Approved)
+        // Fetch 2: Appointment Hari Ini (Rawat Jalan)
         const apptRes = await doctorAPI.getAppointments('Approved');
-        const allApproved = apptRes.data.data || [];
-
-        // 3. FILTER TANGGAL HARI INI (LOGIKA DIPERBAIKI)
         const today = new Date();
-        
-        const todayList = allApproved.filter(a => {
+        const todayList = (apptRes.data.data || []).filter(a => {
             const aptDate = new Date(a.tanggal_appointment);
-            
             // Bandingkan Tanggal, Bulan, dan Tahun Local
-            return (
-                aptDate.getDate() === today.getDate() &&
-                aptDate.getMonth() === today.getMonth() &&
-                aptDate.getFullYear() === today.getFullYear()
-            );
+            return (aptDate.getDate() === today.getDate() && aptDate.getMonth() === today.getMonth() && aptDate.getFullYear() === today.getFullYear());
         });
-
         setTodayAppointments(todayList);
+        
+        // Fetch 3: Pasien Rawat Inap Aktif (BARU)
+        const inpatientRes = await doctorAPI.getMyInpatients(); // Panggil API Rawat Inap Aktif
+        setActiveInpatients(inpatientRes.data.data || []);
 
       } catch (err) { 
         console.error("Gagal memuat dashboard:", err); 
@@ -51,8 +47,9 @@ const DoctorDashboard = ({ user }) => {
   return (
     <DoctorLayout user={user} title="Dashboard Dokter" subtitle="Ringkasan aktivitas praktik hari ini">
       
-      {/* Stats Cards */}
+      {/* 1. Stats Cards (Tetap sama) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* ... (4 kartu statistik) ... */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
           <div><p className="text-sm text-slate-500 font-medium">Total Pasien</p><h3 className="text-3xl font-bold text-slate-800">{stats.total_pasien}</h3></div>
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
@@ -62,7 +59,7 @@ const DoctorDashboard = ({ user }) => {
           <div className="p-3 bg-green-50 text-green-600 rounded-xl"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-          <div><p className="text-sm text-slate-500 font-medium">Resep Dibuat</p><h3 className="text-3xl font-bold text-slate-800">{stats.total_resep}</h3></div>
+          <div><p className="text-sm text-slate-500 font-medium">Rekam Medis</p><h3 className="text-3xl font-bold text-slate-800">{stats.total_rekam}</h3></div>
           <div className="p-3 bg-purple-50 text-purple-600 rounded-xl"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
@@ -73,12 +70,12 @@ const DoctorDashboard = ({ user }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Today's Schedule */}
+        {/* KIRI: Jadwal Rawat Jalan Hari Ini */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
                 <div className="w-2 h-8 bg-emerald-500 rounded-full"></div>
-                <h3 className="font-bold text-slate-800 text-lg">Jadwal Praktik Hari Ini</h3>
+                <h3 className="font-bold text-slate-800 text-lg">Jadwal Rawat Jalan Hari Ini</h3>
             </div>
             <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
                 {new Date().toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'})}
@@ -93,6 +90,7 @@ const DoctorDashboard = ({ user }) => {
             </div>
           ) : (
              <div className="space-y-4">
+               {/* ... (List todayAppointments) ... */}
                {todayAppointments.map(app => (
                  <div key={app.id_appointment} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition">
                     <div className="flex items-center gap-4">
@@ -118,9 +116,35 @@ const DoctorDashboard = ({ user }) => {
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="space-y-6">
-           <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-xl shadow-emerald-200 relative overflow-hidden">
+        {/* KANAN: Pasien Rawat Inap Aktif & Quick Actions */}
+        <div className="space-y-6 lg:col-span-1"> {/* Tambahkan lg:col-span-1 agar tetap di kolom kanan */}
+           
+           {/* Section Pasien Rawat Inap Aktif (BARU) */}
+           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h3 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+                    <Bed className="text-purple-600" size={20} /> Pasien Rawat Inap Aktif ({activeInpatients.length})
+                </h3>
+                {activeInpatients.length === 0 ? (
+                    <p className="text-sm text-slate-400 italic">Tidak ada pasien RI yang sedang dirawat.</p>
+                ) : (
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                        {activeInpatients.map((p) => (
+                            <div key={p.id_rawat} className="bg-purple-50 p-3 rounded-lg border border-purple-100 flex justify-between items-center text-sm">
+                                <div>
+                                    <p className="font-bold text-slate-800">{p.nama_pasien}</p>
+                                    <p className="text-xs text-purple-600">{p.nama_kamar} ({p.kelas_kamar})</p>
+                                </div>
+                                <Link to="/doctor/patients" className="text-xs font-bold text-purple-700 hover:underline">
+                                    Detail Pasien
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                )}
+           </div>
+
+           {/* Quick Actions (Sama) */}
+           <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-xl shadow-emerald-200">
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
               
               <h3 className="font-bold text-xl mb-2 relative z-10">Mulai Periksa</h3>
@@ -129,22 +153,6 @@ const DoctorDashboard = ({ user }) => {
               <Link to="/doctor/medical-records" className="block w-full bg-white text-emerald-700 text-center py-3.5 rounded-xl font-bold hover:bg-emerald-50 transition relative z-10">
                   Input Rekam Medis
               </Link>
-           </div>
-           
-           <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-              <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-slate-400 rounded-full"></span> Pintasan
-              </h4>
-              <div className="space-y-3">
-                 <Link to="/doctor/appointments" className="flex items-center p-3 hover:bg-slate-50 rounded-xl transition text-slate-600 font-medium group border border-transparent hover:border-slate-100">
-                    <span className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-100 transition">📅</span> 
-                    Kelola Janji Temu
-                 </Link>
-                 <Link to="/doctor/patients" className="flex items-center p-3 hover:bg-slate-50 rounded-xl transition text-slate-600 font-medium group border border-transparent hover:border-slate-100">
-                    <span className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-100 transition">👥</span> 
-                    Database Pasien
-                 </Link>
-              </div>
            </div>
         </div>
       </div>

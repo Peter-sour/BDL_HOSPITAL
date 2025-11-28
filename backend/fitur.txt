@@ -229,3 +229,9 @@ GRANT SELECT ANY DICTIONARY TO HOSPITAL;
 SELECT status, object_type 
 FROM all_objects 
 WHERE object_name = 'GET_STATUS_PASIEN' AND owner = 'HOSPITAL';
+
+sudo su - oracle
+sqlplus / as sysdba
+sudo systemctl start oracle-xe-21c
+sqlplus system@localhost:1539/XEPDB1
+sudo /etc/init.d/oracle-xe-21c configure

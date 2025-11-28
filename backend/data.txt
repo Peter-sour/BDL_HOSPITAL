@@ -289,3 +289,41 @@ INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, t
 INSERT INTO TRANSAKSI_PEMBAYARAN (id_transaksi, id_pasien, id_resep, id_rawat, tanggal_transaksi, total_bayar, metode_bayar) VALUES ('T025', 'P025', 'RS025', 'RI010', TO_DATE('2025-11-11', 'YYYY-MM-DD'), 18500000.00, 'BPJS');
 COMMIT;
 ```
+
+
+-- =============================================
+-- VIEW: Laporan Pasien per Dokter (FIX ORA-00904)
+-- =============================================
+
+CREATE OR REPLACE VIEW vw_laporan_pasien_per_dokter AS
+SELECT 
+    d.id_dokter,
+    d.nama AS nama_dokter,
+    d.spesialis,
+    d.departemen,
+    COUNT(DISTINCT rm.id_pasien) AS jumlah_pasien_unik,
+    COUNT(rm.id_rekam) AS jumlah_kunjungan_rm,
+    
+    -- MENCARI TANGGAL PERTAMA: Join TP -> TAGIHAN -> RESEP
+    (SELECT MIN(TP.TANGGAL_TRANSAKSI) 
+     FROM TRANSAKSI_PEMBAYARAN TP
+     JOIN TAGIHAN T ON TP.ID_TAGIHAN = T.ID_TAGIHAN       -- 1. Cari Tagihan dari Transaksi
+     JOIN RESEP RS ON T.ID_REFERENSI = RS.ID_RESEP        -- 2. Link Tagihan ke Resep via ID_REFERENSI
+     WHERE RS.ID_DOKTER = D.ID_DOKTER
+       AND T.JENIS_TAGIHAN = 'Obat'                       -- Pastikan hanya tagihan obat
+    ) AS kunjungan_pertama,
+    
+    -- MENCARI TANGGAL TERAKHIR: Join TP -> TAGIHAN -> RESEP
+    (SELECT MAX(TP.TANGGAL_TRANSAKSI) 
+     FROM TRANSAKSI_PEMBAYARAN TP
+     JOIN TAGIHAN T ON TP.ID_TAGIHAN = T.ID_TAGIHAN
+     JOIN RESEP RS ON T.ID_REFERENSI = RS.ID_RESEP
+     WHERE RS.ID_DOKTER = D.ID_DOKTER
+       AND T.JENIS_TAGIHAN = 'Obat'
+    ) AS kunjungan_terakhir
+    
+FROM DOKTER d
+LEFT JOIN REKAM_MEDIS rm ON d.id_dokter = rm.id_dokter
+GROUP BY d.id_dokter, d.nama, d.spesialis, d.departemen
+ORDER BY jumlah_pasien_unik DESC;
+/

@@ -29,11 +29,12 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Username atau password salah' });
     }
 
+    // Perhatikan: Oracle mengembalikan nama kolom dalam HURUF BESAR (ID_PENGGUNA, ROLE, dll)
     const user = userResult.rows[0];
 
-    // 2. Cek Status
+    // 2. Cek Status Akun
     if (user.STATUS !== 'Aktif') {
-      return res.status(403).json({ success: false, message: 'Akun tidak aktif' });
+      return res.status(403).json({ success: false, message: 'Akun tidak aktif. Hubungi administrator.' });
     }
 
     // 3. Verifikasi Password
@@ -42,33 +43,56 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Username atau password salah' });
     }
 
-    // 4. Ambil Detail (Pasien/Dokter)
+    // 4. Ambil Detail Berdasarkan Role (Pasien / Dokter / Admin)
     let userDetail = null;
-    let detailQuery = '';
-
+    
     if (user.ROLE === 'Pasien') {
-      detailQuery = `SELECT id_pasien, nama, no_telepon FROM PASIEN WHERE id_pengguna = :id`;
+      // Ambil data Pasien
+      const pasienRes = await connection.execute(
+        `SELECT id_pasien AS "id_detail", nama, no_telepon FROM PASIEN WHERE id_pengguna = :id`,
+        [user.ID_PENGGUNA],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      userDetail = pasienRes.rows[0];
+
     } else if (user.ROLE === 'Dokter') {
-      detailQuery = `SELECT id_dokter, nama, spesialis FROM DOKTER WHERE id_pengguna = :id`;
+      // Ambil data Dokter
+      const dokterRes = await connection.execute(
+        `SELECT id_dokter AS "id_detail", nama, spesialis FROM DOKTER WHERE id_pengguna = :id`,
+        [user.ID_PENGGUNA],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      userDetail = dokterRes.rows[0];
+
+    } else if (user.ROLE === 'Admin') {
+      // Ambil data Admin
+      const adminRes = await connection.execute(
+        `SELECT id_admin AS "id_detail", nama, departemen FROM ADMIN WHERE id_pengguna = :id`,
+        [user.ID_PENGGUNA],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+      );
+      
+      // Fallback jika admin belum di-insert ke tabel ADMIN
+      if (adminRes.rows.length > 0) {
+        userDetail = adminRes.rows[0];
+      } else {
+        userDetail = { id_detail: 'ADM-SYS', nama: 'Super Administrator' }; 
+      }
     }
 
-    if (detailQuery) {
-      const detailRes = await connection.execute(detailQuery, [user.ID_PENGGUNA], { outFormat: oracledb.OUT_FORMAT_OBJECT });
-      userDetail = detailRes.rows[0];
-    }
-
-    // 5. Buat Token
+    // 5. Buat Token JWT
     const token = jwt.sign(
       {
         id_pengguna: user.ID_PENGGUNA,
         username: user.USERNAME,
         role: user.ROLE,
-        detail_id: userDetail ? (user.ROLE === 'Pasien' ? userDetail.ID_PASIEN : userDetail.ID_DOKTER) : null
+        detail_id: userDetail ? userDetail.id_detail : null // id_detail diseragamkan aliasnya di query atas
       },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
+    // 6. Response Sukses
     res.status(200).json({
       success: true,
       message: 'Login berhasil',
@@ -82,9 +106,11 @@ exports.login = async (req, res) => {
 
   } catch (error) {
     console.error('Login Error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server saat login' });
   } finally {
-    if (connection) await connection.close();
+    if (connection) {
+      try { await connection.close(); } catch (e) { console.error(e); }
+    }
   }
 };
 

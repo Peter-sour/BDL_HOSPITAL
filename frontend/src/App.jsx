@@ -119,6 +119,7 @@ import PatientAppointments from './pages/patient/PatientAppointments';
 import PatientMedicalRecords from './pages/patient/PatientMedicalRecords';
 import PatientPrescriptions from './pages/patient/PatientPrescriptions';
 import PatientBills from './pages/patient/PatientBills';
+import PatientRawatInap from './pages/patient/PatientRawatInap';
 // import PatientPayments from './pages/patient/PatientPayments';
 
 // Doctor Pages
@@ -129,6 +130,11 @@ import DoctorPatients from './pages/doctor/DoctorPatients';
 import DoctorMedicalRecords from './pages/doctor/DoctorMedicalRecords';
 // import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
 // import DoctorRatings from './pages/doctor/DoctorRatings';
+
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminMedicines from './pages/admin/AdminMedicines';
+import AdminReports from './pages/admin/AdminReports';
+import AdminRawatInap from './pages/admin/AdminRawatInap';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -251,6 +257,7 @@ const App = () => {
             {/* <DashboardLayout> */}
               {user?.role === 'Pasien' ? <PatientDashboard user={user} /> : null}
               {user?.role === 'Dokter' ? <DoctorDashboard user={user} /> : null}
+              {user?.role === 'Admin' && <Redirect to="/admin/dashboard" />}
             {/* </DashboardLayout> */}
           </ProtectedRoute>
         </Route>
@@ -295,14 +302,12 @@ const App = () => {
  
           </ProtectedRoute>
         </Route>
-
-        {/* <Route path="/patient/payments">
+        <Route path="/patient/rawat-inap"> 
           <ProtectedRoute allowedRoles={['Pasien']}>
-            <DashboardLayout>
-              <PatientPayments user={user} />
-            </DashboardLayout>
+              <PatientRawatInap user={user} />
           </ProtectedRoute>
-        </Route> */}
+        </Route>
+
 
         <Route path="/doctor/profile">
           <ProtectedRoute allowedRoles={['Dokter']}>
@@ -336,21 +341,27 @@ const App = () => {
           </ProtectedRoute>
         </Route>
 
-        {/* <Route path="/doctor/prescriptions">
-          <ProtectedRoute allowedRoles={['Dokter']}>
-            <DashboardLayout>
-              <DoctorPrescriptions user={user} />
-            </DashboardLayout>
-          </ProtectedRoute>
-        </Route>  */}
 
-        {/* <Route path="/doctor/ratings">
-          <ProtectedRoute allowedRoles={['Dokter']}>
-            <DashboardLayout>
-              <DoctorRatings user={user} />
-            </DashboardLayout>
+        <Route path="/admin/dashboard">
+          <ProtectedRoute allowedRoles={['Admin']}>
+             <AdminDashboard />
           </ProtectedRoute>
-        </Route> */}
+        </Route>
+        <Route path="/admin/medicines">
+          <ProtectedRoute allowedRoles={['Admin']}>
+             <AdminMedicines />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/reports">
+          <ProtectedRoute allowedRoles={['Admin']}>
+             <AdminReports />
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/rawat-inap"> 
+          <ProtectedRoute allowedRoles={['Admin']}>
+             <AdminRawatInap />
+          </ProtectedRoute>
+        </Route>
 
         {/* 404 or Redirect */}
         <Route path="*">

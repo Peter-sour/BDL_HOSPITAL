@@ -34,4 +34,6 @@ router.get('/ratings', doctorController.getMyRatings);
 // Statistics
 router.get('/statistics', doctorController.getStatistics);
 
+router.get('/my-inpatients', doctorController.getMyInpatients);
+
 module.exports = router;

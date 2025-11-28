@@ -10,6 +10,7 @@ const { initialize } = require('./config/db');
 const authRoutes = require('./route/authRoutes');
 const patientRoutes = require('./route/patientRoutes');
 const doctorRoutes = require('./route/doctorRoutes');
+const adminRoutes = require('./route/adminRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/doctor', doctorRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

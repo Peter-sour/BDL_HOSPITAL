@@ -42,4 +42,8 @@ router.get('/bills/:id_tagihan/status', patientController.checkBillStatus);
 
 router.get('/bills/:id_tagihan/details', patientController.getBillDetails);
 
+router.post('/rawat-inap/request', patientController.requestRawatInap);
+
+router.get('/rawat-inap/available-rooms', patientController.getAvailableRooms);
+
 module.exports = router;
